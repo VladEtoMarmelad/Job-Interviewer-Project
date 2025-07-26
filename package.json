@@ -1,0 +1,13 @@
+{
+  "name": "job-interviewer-project",
+  "private": true,
+  "workspaces": [
+    "job-interviewer-frontend",
+    "job-interviewer-backend"
+  ],
+  "scripts": {
+    "start:frontend": "npm run start -w job-interviewer-frontend",
+    "start:backend": "npm run start -w job-interviewer-backend",
+    "build": "npm run build -w job-interviewer-frontend && npm run build -w job-interviewer-backend"
+  }
+}
