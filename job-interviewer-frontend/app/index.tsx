@@ -1,6 +1,7 @@
-import { Text, View, TouchableOpacity, TextInput } from "react-native";
+import { Text, View, TouchableOpacity } from "react-native";
 import { useForm } from "react-hook-form"
 import { Input }  from "@/components/Input";
+import axios from "axios"
 import globalStyles from "@/styles/GlobalStyles"
 
 export default function Index() {
@@ -21,6 +22,11 @@ export default function Index() {
 		},
 	})
 	const startInterview = (data: FormData) => console.log(data)
+
+	const testAdd = async () => {
+		const res = await axios.post("http://localhost:3000/interview/add")
+		console.log(res)
+	}
 
 	return (
 		<View
@@ -61,6 +67,12 @@ export default function Index() {
 			onPress={handleSubmit(startInterview)}
 			style={[globalStyles.button, globalStyles.lightThemeButton]}
 		><Text style={{color: 'white'}}>Начать собеседование</Text></TouchableOpacity>
+
+		<TouchableOpacity
+			onPress={testAdd}
+			style={[globalStyles.button, globalStyles.lightThemeButton]}
+		><Text style={{color: 'white'}}>Test adding to DB</Text></TouchableOpacity>
+
 		</View>
 	);
 }
