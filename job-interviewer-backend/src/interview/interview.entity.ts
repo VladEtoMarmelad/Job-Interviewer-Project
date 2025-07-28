@@ -1,16 +1,16 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Interview {
+export class Interviews {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({type: "varchar", length: 50, default: ""})
   interviewName: string;
 
-  @Column()
+  @Column({type: "text", default: ""})
   requiredKnowledge: string;
 
-  @Column({ default: 30 })
+  @Column({ default: 10 })
   questionsAmount: number;
 }

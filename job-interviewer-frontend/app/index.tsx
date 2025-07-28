@@ -21,10 +21,10 @@ export default function Index() {
 			questionsAmount: 30
 		},
 	})
-	const startInterview = (data: FormData) => console.log(data)
 
-	const testAdd = async () => {
-		const res = await axios.post("http://localhost:3000/interview/add")
+	const addInterview = async (data: FormData): Promise<void> => {
+		console.log(data)
+		const res = await axios.post("http://localhost:3000/interview/add", data)
 		console.log(res)
 	}
 
@@ -64,15 +64,9 @@ export default function Index() {
 		/>
 
 		<TouchableOpacity
-			onPress={handleSubmit(startInterview)}
+			onPress={handleSubmit(addInterview)}
 			style={[globalStyles.button, globalStyles.lightThemeButton]}
 		><Text style={{color: 'white'}}>Начать собеседование</Text></TouchableOpacity>
-
-		<TouchableOpacity
-			onPress={testAdd}
-			style={[globalStyles.button, globalStyles.lightThemeButton]}
-		><Text style={{color: 'white'}}>Test adding to DB</Text></TouchableOpacity>
-
 		</View>
 	);
 }

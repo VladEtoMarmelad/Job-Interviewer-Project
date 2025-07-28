@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { Interview } from './interview/interview.entity';
+import { Interviews } from './interview/interview.entity';
 import { InterviewsModule } from './interview/interviews.module';
 
 @Module({
@@ -16,7 +16,7 @@ import { InterviewsModule } from './interview/interviews.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [Interview],
+      entities: [Interviews],
       synchronize: true,
     }),
     InterviewsModule

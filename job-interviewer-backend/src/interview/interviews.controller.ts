@@ -1,5 +1,8 @@
-import { Controller, Get, Post, Query } from '@nestjs/common';
+import { Controller, Get, Post, Query, Body, Res } from '@nestjs/common';
 import { InterviewsService } from './interviews.service';
+import { google } from '@ai-sdk/google';
+import { streamText } from 'ai';
+import { Response } from 'express';
 
 @Controller("interview")
 export class InterviewsController {
@@ -11,12 +14,17 @@ export class InterviewsController {
   }
 
   @Post("add")
-  addInterview(): any {
-    return this.interviewsService.add({
-        id: 1,
-        interviewName: "interviewName",
-        requiredKnowledge: "some requiredKnowledge",
-        questionsAmount: 30
+  addInterview(@Body() interviewData: any): any {
+    return this.interviewsService.add(interviewData)
+  }
+
+  @Post("testAI")
+  async example(@Res() res: Response) {
+    const result = streamText({
+      model: google("gemini-2.0-flash"),
+      prompt: "Invent a new holiday and describe its traditions",
     });
+
+    result.pipeTextStreamToResponse(res);
   }
 }
