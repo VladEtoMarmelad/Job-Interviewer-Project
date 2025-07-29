@@ -1,46 +1,38 @@
-import { TouchableOpacity, View, Text } from "react-native"
-import { useState } from "react";
-import axios from "axios";
+import { View, Text, FlatList, TextInput } from "react-native"
+import { useChat } from '@ai-sdk/react'
+import { useEffect, useState } from "react";
+import { useLocalSearchParams } from 'expo-router';
 import globalStyles from "@/styles/GlobalStyles"
+import axios from "axios";
 
 const InterviewChatScreen = () => {
-    const [messages, setMessages] = useState("")
+    const searchParams = useLocalSearchParams();
+    const [interview, setInterview] = useState<any>(null)
 
-    const testAI = async () => {
-		// const res = await axios.post("http://localhost:3000/interview/testAI")
-		// console.log(res)
-
-        // setMessages(res.data)
-
-        const response = await fetch("http://localhost:3000/interview/testAI", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-
-        if (!response.body) {
-            console.warn("Stream not supported");
-            return;
+    const { messages, input, handleInputChange, handleSubmit } = useChat({
+        api: "http://localhost:3000/interview/chatAI",
+        onError: error => console.error(error, "ERROR"),
+        body: {
+            interviewId: searchParams.interviewId,
+            jobTitle: interview?.jobTitle,
+            requiredKnowledge: interview?.requiredKnowledge
         }
+    });
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-
-        let done = false;
-        let partial = "";
-
-        while (!done) {
-            const { value, done: streamDone } = await reader.read();
-            done = streamDone;
-
-            if (value) {
-                partial += decoder.decode(value, { stream: true });
-                setMessages((prev) => prev + partial);
-                partial = "";
+    useEffect(() => {
+        const mountHandler = async (): Promise<void> => {
+            const res = await axios.get("http://localhost:3000/interview/findOne", {
+                params: {interviewId: searchParams.interviewId}
+            })
+            if (res.status===200) {
+                setInterview(res.data)
             }
         }
-	}
+
+        mountHandler()
+    }, [])
+
+    if (!interview) return <Text>Загрузка...</Text>;
 
     return (
         <View
@@ -51,14 +43,35 @@ const InterviewChatScreen = () => {
 				backgroundColor: '#f2f2f2'
 			}}
         >
-            <TouchableOpacity
-			    onPress={testAI}
-			    style={[globalStyles.button, globalStyles.lightThemeButton]}
-		    ><Text style={{color: 'white'}}>Test AI</Text></TouchableOpacity>
 
-            <Text>
-                AI Message: {messages}
-            </Text>
+            <TextInput
+				placeholder="Скажите что-то..."
+				value={input}
+				onChange={e =>
+					handleInputChange({
+						...e,
+						target: {
+							...e.target,
+							value: e.nativeEvent.text,
+						},
+					} as unknown as React.ChangeEvent<HTMLInputElement>)
+				}
+				onSubmitEditing={e => {
+					handleSubmit(e);
+					e.preventDefault();
+				}}
+				autoFocus={true}
+                style={[globalStyles.input, globalStyles.lightThemeInput]}
+			/>
+
+            <FlatList 
+                data={messages} 
+                renderItem={({item: message, index}) => 
+                    <Text key={index}>
+                        {message.content}
+                    </Text>
+                }
+            />
         </View>
     )
 }

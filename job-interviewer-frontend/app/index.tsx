@@ -7,7 +7,7 @@ import globalStyles from "@/styles/GlobalStyles"
 export default function Index() {
 
 	interface FormData {
-		interviewName: string
+		jobTitle: string
 		requiredKnowledge: string
 
 		questionsAmount: number
@@ -15,7 +15,7 @@ export default function Index() {
 
 	const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
 		defaultValues: {
-			interviewName: "",
+			jobTitle: "",
 			requiredKnowledge: "",
 
 			questionsAmount: 30
@@ -39,12 +39,12 @@ export default function Index() {
 		>
 
 		<Input 
-			name="interviewName"
+			name="jobTitle"
 			placeholder="Название должности..."
 			control={control}
 			rules={{required: true}}
 		/>
-      	{errors.interviewName && <Text>This is required.</Text>}
+      	{errors.jobTitle && <Text>This is required.</Text>}
 
 		<Input 
 			name="requiredKnowledge"

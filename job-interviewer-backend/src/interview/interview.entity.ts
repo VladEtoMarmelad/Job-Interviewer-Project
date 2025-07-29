@@ -6,7 +6,7 @@ export class Interviews {
   id: number;
 
   @Column({type: "varchar", length: 50, default: ""})
-  interviewName: string;
+  jobTitle: string;
 
   @Column({type: "text", default: ""})
   requiredKnowledge: string;
