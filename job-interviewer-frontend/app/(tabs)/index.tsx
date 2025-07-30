@@ -1,6 +1,7 @@
 import { Text, View, TouchableOpacity } from "react-native";
 import { useForm } from "react-hook-form"
 import { Input }  from "@/components/Input";
+import { useRouter } from "expo-router";
 import axios from "axios"
 import globalStyles from "@/styles/GlobalStyles"
 
@@ -13,6 +14,7 @@ export default function Index() {
 		questionsAmount: number
 	}
 
+	const router = useRouter()
 	const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
 		defaultValues: {
 			jobTitle: "",
@@ -26,6 +28,12 @@ export default function Index() {
 		console.log(data)
 		const res = await axios.post("http://localhost:3000/interview/add", data)
 		console.log(res)
+		if (res.status===201) {
+			router.replace({
+				pathname: "/interview/[interviewId]",
+				params: {interviewId: res.data.id}
+			})
+		}
 	}
 
 	return (
