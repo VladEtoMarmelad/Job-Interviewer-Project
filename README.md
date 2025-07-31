@@ -1,7 +1,7 @@
 ## Get started
 
 1. Install dependencies
-
+   In both 'job-interviewer-backend' and 'job-interviewer-frontend' use
    ```bash
    npm install
    ```

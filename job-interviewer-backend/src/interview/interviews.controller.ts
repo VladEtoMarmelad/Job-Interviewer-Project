@@ -8,6 +8,11 @@ import { Response } from 'express';
 export class InterviewsController {
   constructor(private readonly interviewsService: InterviewsService) {}
 
+  @Get("findAll")
+  findAll() {
+    return this.interviewsService.findAll()
+  }
+
   @Get("findOne")
   findOne(@Query("interviewId") interviewId: number) {
     return this.interviewsService.findOne(interviewId)

@@ -26,7 +26,7 @@ export default function Index() {
 
 	const addInterview = async (data: FormData): Promise<void> => {
 		console.log(data)
-		const res = await axios.post("http://localhost:3000/interview/add", data)
+		const res = await axios.post(`http://${process.env.EXPO_PUBLIC_IP}:3000/interview/add`, data)
 		console.log(res)
 		if (res.status===201) {
 			router.replace({

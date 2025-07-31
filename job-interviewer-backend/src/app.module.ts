@@ -3,8 +3,10 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { Interviews } from './interview/interview.entity';
+import { Interview } from './interview/interview.entity';
+import { Question } from './questions/question.entity';
 import { InterviewsModule } from './interview/interviews.module';
+import { QuestionsModule } from './questions/questions.module';
 
 @Module({
   imports: [
@@ -16,10 +18,11 @@ import { InterviewsModule } from './interview/interviews.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [Interviews],
+      entities: [Interview, Question],
       synchronize: true,
     }),
-    InterviewsModule
+    InterviewsModule,
+    QuestionsModule
   ],
   controllers: [AppController],
   providers: [AppService],

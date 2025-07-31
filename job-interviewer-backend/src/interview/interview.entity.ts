@@ -1,10 +1,16 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Question } from 'src/questions/question.entity';
 
-@Entity()
-export class Interviews {
+@Entity({name: "interviews"})
+export class Interview {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @OneToMany(() => Question, (question) => question.interview)
+  questions: Question[]
+
+
+  
   @Column({type: "varchar", length: 50, default: ""})
   jobTitle: string;
 
