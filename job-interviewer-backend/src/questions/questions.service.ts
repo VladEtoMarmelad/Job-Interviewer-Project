@@ -10,8 +10,12 @@ export class QuestionsService {
     private questionsRepository: Repository<Question>,
   ) {}
 
-  // isExists(interview: number): Promise<Question> {
-  //   return this.questionsRepository.findOneByOrFail({ interview: interview }})
-  // }
+  findByInterview(interviewId: number): Promise<Question[]> {
+    return this.questionsRepository.findBy({interview: {id: interviewId}})
+  }
 
+  async add(questionData: any): Promise<any> {
+    const newQuestion = this.questionsRepository.create(questionData)
+    return this.questionsRepository.save(newQuestion)
+  }
 }
