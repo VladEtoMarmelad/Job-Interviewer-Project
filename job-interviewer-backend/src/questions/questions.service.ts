@@ -15,7 +15,19 @@ export class QuestionsService {
   }
 
   async add(questionData: any): Promise<any> {
-    const newQuestion = this.questionsRepository.create(questionData)
+    const { aiQuestion, userAnswer, interviewId } = questionData
+    const newQuestion = this.questionsRepository.create({
+      aiQuestion,
+      userAnswer,
+      interview: {id: interviewId}
+    })
     return this.questionsRepository.save(newQuestion)
+  }
+
+  async update(questionData: any): Promise<any> {
+    const { questionId, columnName, columnValue } = questionData
+    return this.questionsRepository.update(questionId, {
+      [columnName]: columnValue
+    })
   }
 }

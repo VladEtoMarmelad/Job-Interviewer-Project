@@ -20,6 +20,15 @@ const InterviewChatScreen = () => {
       interviewId: searchParams.interviewId,
       jobTitle: interview?.jobTitle,
       requiredKnowledge: interview?.requiredKnowledge
+    },
+    onFinish: (lastAIMessage) => {
+      console.log("Finish!")
+      console.log("lastAIMessage:", JSON.stringify(lastAIMessage, null, 4))
+      // axios.post(`http://${process.env.EXPO_PUBLIC_IP}:3000/question/update`, {
+      //   questionId: ,
+      //   columnName: "aiQuestion",
+      //   columnValue: lastAIMessage.content
+      // })
     }
   });
 
@@ -44,16 +53,24 @@ const InterviewChatScreen = () => {
   }, [searchParams.interviewId])
 
   useEffect(() => {
-    console.log("startInterview:", startInterview)
-    console.log("input", input)
+    const addFirstQuestion = async (): Promise<void> => {
+      const newQuestion = await axios.post(`http://${process.env.EXPO_PUBLIC_IP}:3000/question/add`, {
+        aiQuestion: "",
+        userAnswer: "",
+        interviewId: searchParams.interviewId,
+      })
+      console.log("newQuestion:", newQuestion)
+      setPrevQuestions((prevValue: any) => [...prevValue, newQuestion])
+    }
+
     if (startInterview.current && input!=="") {
       handleSubmit(new Event("submit"))
       startInterview.current=false
+      addFirstQuestion()
     }
   }, [input, startInterview])
 
   const startInterviewHanler = (): void => {
-    console.log("gdflgkj")
     startInterview.current=true
     setInput("Давай начнём собеседование")
     
@@ -66,7 +83,10 @@ const InterviewChatScreen = () => {
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#f2f2f2',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        borderColor: 'red',
+        borderWidth: 1,
+        borderStyle: 'solid'
 		}}>
       <TouchableOpacity
         onPress={startInterviewHanler}
@@ -86,7 +106,7 @@ const InterviewChatScreen = () => {
 			}}
     >
       
-    <View style={{flexDirection: 'column', width: '85%', padding: 5}}>
+    <View style={{height: '100%', flexDirection: 'column', width: '85%', padding: 5}}>
       <View style={{flexDirection: 'row'}}>
         <TextInput
           placeholder="Скажите что-то..."
@@ -117,6 +137,8 @@ const InterviewChatScreen = () => {
 
       <FlatList 
         data={messages} 
+        style={{flex: 1}}
+        showsVerticalScrollIndicator={false}
         renderItem={({item: message, index}) => 
           <Text key={index}>
             {message.content}

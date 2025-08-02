@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Query } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
 
 @Controller("question")
@@ -13,5 +13,10 @@ export class QuestionsController {
   @Post("add")
   add(@Body() questionData: any): any {
     return this.questionsService.add(questionData)
+  }
+
+  @Patch("update")
+  update(@Body() questionData: any): any {
+    return this.questionsService.update(questionData)
   }
 }

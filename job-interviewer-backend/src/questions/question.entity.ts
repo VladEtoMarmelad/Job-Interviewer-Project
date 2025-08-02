@@ -6,15 +6,12 @@ export class Question {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Interview, (interview) => interview.questions)
-  interview: Interview
-
-
-  
   @Column({type: "text", default: ""})
   aiQuestion: string;
 
   @Column({type: "text", default: ""})
   userAnswer: string;
 
+  @ManyToOne(() => Interview, (interview) => interview.questions)
+  interview: Interview
 }
