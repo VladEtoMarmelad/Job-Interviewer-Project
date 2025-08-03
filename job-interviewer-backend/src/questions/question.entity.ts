@@ -12,6 +12,12 @@ export class Question {
   @Column({type: "text", default: ""})
   userAnswer: string;
 
+  @Column({type: "text", default: ""})
+  aiSummary: string;
+
   @ManyToOne(() => Interview, (interview) => interview.questions)
   interview: Interview
 }
+
+//React Native Junior
+//HTML Css JS TS React React Native Expo NextJS Redux

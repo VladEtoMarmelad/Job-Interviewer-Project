@@ -12,6 +12,7 @@ const InterviewChatScreen = () => {
   const [prevQuestions, setPrevQuestions] = useState<any>(null)
   const [chatHeight, setChatHeight] = useState<number>(100)
   let startInterview = useRef<boolean>(false)  
+  let nextCoulmnUpdate = useRef<"aiQuestion"|"userAnswer"|"aiSummary"|null>(null) //which question column will be updated next
 
   const { messages, input, setInput, handleInputChange, handleSubmit } = useChat({
     api: `http://${process.env.EXPO_PUBLIC_IP}:3000/interview/chatAI`,
@@ -21,18 +22,14 @@ const InterviewChatScreen = () => {
       jobTitle: interview?.jobTitle,
       requiredKnowledge: interview?.requiredKnowledge
     },
-    onFinish: (lastAIMessage) => {
+    onFinish: async (lastAIMessage) => {
       console.log("Finish!")
       console.log("lastAIMessage:", JSON.stringify(lastAIMessage, null, 4))
-      // axios.post(`http://${process.env.EXPO_PUBLIC_IP}:3000/question/update`, {
-      //   questionId: ,
-      //   columnName: "aiQuestion",
-      //   columnValue: lastAIMessage.content
-      // })
+      patchLastQuestion(lastAIMessage.content)
     }
   });
 
-  useEffect(() => {
+  useEffect(() => { //onMount
     const mountHandler = async (): Promise<void> => {
       const res = await axios.get(`http://${process.env.EXPO_PUBLIC_IP}:3000/interview/findOne`, {
         params: {interviewId: searchParams.interviewId}
@@ -44,36 +41,75 @@ const InterviewChatScreen = () => {
       setPrevQuestions(questions.data)
       console.log("questions:", questions)
 
+      if (questions.data.length>0) {
+        if (questions.data[questions.data.length-1].aiQuestion==="") {
+          nextCoulmnUpdate.current="aiQuestion"
+        } else if (questions.data[questions.data.length-1].userAnswer==="") {
+          nextCoulmnUpdate.current="userAnswer"
+        } else if (questions.data[questions.data.length-1].aiSummary==="") {
+          nextCoulmnUpdate.current="aiSummary"
+        } 
+      }
+
+      console.log("nextColumnUpdate:", nextCoulmnUpdate.current)
+
       if (res.status===200) {
         setInterview(res.data)
       }
     }
 
     mountHandler()
-  }, [searchParams.interviewId])
+  }, [searchParams.interviewId]) //onMount
 
   useEffect(() => {
-    const addFirstQuestion = async (): Promise<void> => {
-      const newQuestion = await axios.post(`http://${process.env.EXPO_PUBLIC_IP}:3000/question/add`, {
-        aiQuestion: "",
-        userAnswer: "",
-        interviewId: searchParams.interviewId,
-      })
-      console.log("newQuestion:", newQuestion)
-      setPrevQuestions((prevValue: any) => [...prevValue, newQuestion])
-    }
-
     if (startInterview.current && input!=="") {
       handleSubmit(new Event("submit"))
       startInterview.current=false
-      addFirstQuestion()
+      addQuestion()
     }
   }, [input, startInterview])
 
+  //there almost 40 lines of functions. Maybe I should move them to Redux reducers
+  //also this will make structure of component easier to read and implement new functional
   const startInterviewHanler = (): void => {
     startInterview.current=true
+    nextCoulmnUpdate.current="aiQuestion"
     setInput("Давай начнём собеседование")
-    
+  }
+
+  const addQuestion = async (): Promise<void> => {
+    const newQuestion = await axios.post(`http://${process.env.EXPO_PUBLIC_IP}:3000/question/add`, {
+      aiQuestion: "",
+      userAnswer: "",
+      aiSummary: "",
+      interviewId: searchParams.interviewId,
+    })
+    console.log("newQuestion:", newQuestion)
+    setPrevQuestions((prevValue: any) => [...prevValue, newQuestion])
+  }
+
+  const changeNextCoulmnUpdate = async (): Promise<void> => {
+    if (nextCoulmnUpdate.current==="aiQuestion") {
+      nextCoulmnUpdate.current="userAnswer"
+    } else if (nextCoulmnUpdate.current==="userAnswer") {
+      nextCoulmnUpdate.current="aiSummary"
+    } else {
+      addQuestion()
+      nextCoulmnUpdate.current="aiQuestion" 
+    } 
+  }
+
+  const patchLastQuestion = async (columnValue: string): Promise<void> => {
+    console.log("prevQuestion from patch func:", prevQuestions)
+    const res = await axios.patch(`http://${process.env.EXPO_PUBLIC_IP}:3000/question/update`, {
+      questionId: prevQuestions[prevQuestions.length-1].id,
+      columnName: nextCoulmnUpdate.current,
+      columnValue
+    })
+    console.log("patchRes:", res)
+    if (res.status===200) {
+      changeNextCoulmnUpdate()
+    }
   }
 
   if (!interview || !prevQuestions) return <Text>Загрузка...</Text>;
@@ -83,10 +119,7 @@ const InterviewChatScreen = () => {
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#f2f2f2',
-        flexDirection: 'row',
-        borderColor: 'red',
-        borderWidth: 1,
-        borderStyle: 'solid'
+        flexDirection: 'row'
 		}}>
       <TouchableOpacity
         onPress={startInterviewHanler}
@@ -107,6 +140,18 @@ const InterviewChatScreen = () => {
     >
       
     <View style={{height: '100%', flexDirection: 'column', width: '85%', padding: 5}}>
+      <FlatList 
+        data={prevQuestions} 
+        
+        showsVerticalScrollIndicator={false}
+        keyExtractor={question => question.id}
+        renderItem={({item: question}) => 
+          <Text>
+            {question.aiQuestion}
+          </Text>
+        }
+      />
+
       <View style={{flexDirection: 'row'}}>
         <TextInput
           placeholder="Скажите что-то..."
@@ -130,7 +175,10 @@ const InterviewChatScreen = () => {
         />
 
         <TouchableOpacity
-          onPress={() => handleSubmit(new Event("submit"))}
+          onPress={() => {
+            handleSubmit(new Event("submit"))
+            patchLastQuestion(input)
+          }}
           style={[globalStyles.button, globalStyles.lightThemeButton, {marginLeft: 25, height: 50, alignSelf: 'flex-end'}]}
         ><Text style={{color: 'white'}}>Отправить ответ</Text></TouchableOpacity>
       </View>

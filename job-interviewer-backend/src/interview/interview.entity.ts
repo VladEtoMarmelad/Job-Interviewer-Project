@@ -11,7 +11,7 @@ export class Interview {
 
 
   
-  @Column({type: "varchar", length: 50, default: ""})
+  @Column({type: "varchar", length: 100, default: ""})
   jobTitle: string;
 
   @Column({type: "text", default: ""})
