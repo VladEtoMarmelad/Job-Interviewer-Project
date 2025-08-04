@@ -5,6 +5,7 @@ import axios from "axios";
 
 const Interviews = () => {
   const [interviews, setInterviews] = useState(null);
+
   useEffect(() => {
     const getInterviews = async () => {
       const res = await axios.get(`http://${process.env.EXPO_PUBLIC_IP}:3000/interview/findAll`)

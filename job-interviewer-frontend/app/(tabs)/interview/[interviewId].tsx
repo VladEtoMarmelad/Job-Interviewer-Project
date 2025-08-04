@@ -2,6 +2,9 @@ import { View, Text, FlatList, TextInput, TouchableOpacity } from "react-native"
 import { useChat } from '@ai-sdk/react'
 import { useEffect, useState, useRef } from "react";
 import { useLocalSearchParams } from 'expo-router';
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { addQuestion, changeNextColumnUpdate, patchLastQuestion, getPrevQuestions } from "@/features/questionSlice";
 import Slider from '@react-native-community/slider';
 import globalStyles from "@/styles/GlobalStyles"
 import axios from "axios";
@@ -9,10 +12,12 @@ import axios from "axios";
 const InterviewChatScreen = () => {
   const searchParams = useLocalSearchParams();
   const [interview, setInterview] = useState<any>(null)
-  const [prevQuestions, setPrevQuestions] = useState<any>(null)
   const [chatHeight, setChatHeight] = useState<number>(100)
   let startInterview = useRef<boolean>(false)  
-  let nextCoulmnUpdate = useRef<"aiQuestion"|"userAnswer"|"aiSummary"|null>(null) //which question column will be updated next
+
+  const prevQuestions: any = useSelector<RootState>(state => state.questions.prevQuestions)
+  const nextColumnUpdate = useSelector<RootState>(state => state.questions.nextColumnUpdate) //which question column will be updated next
+  const dispatch = useDispatch<AppDispatch>();
 
   const { messages, input, setInput, handleInputChange, handleSubmit } = useChat({
     api: `http://${process.env.EXPO_PUBLIC_IP}:3000/interview/chatAI`,
@@ -25,7 +30,10 @@ const InterviewChatScreen = () => {
     onFinish: async (lastAIMessage) => {
       console.log("Finish!")
       console.log("lastAIMessage:", JSON.stringify(lastAIMessage, null, 4))
-      patchLastQuestion(lastAIMessage.content)
+      dispatch(patchLastQuestion({
+        interviewId: searchParams.interviewId, 
+        columnValue: lastAIMessage.content
+      }))
     }
   });
 
@@ -35,23 +43,22 @@ const InterviewChatScreen = () => {
         params: {interviewId: searchParams.interviewId}
       })
 
-      const questions = await axios.get(`http://${process.env.EXPO_PUBLIC_IP}:3000/question/findByInterview`, {
-        params: {interviewId: searchParams.interviewId}
+      dispatch(getPrevQuestions(Array.isArray(searchParams.interviewId) ? searchParams.interviewId[0] : searchParams.interviewId)).unwrap().then(prevQuestions => {
+        console.log("prevQuestions:", prevQuestions)
+
+        if (prevQuestions.length>0) {
+          if (prevQuestions[prevQuestions.length-1].aiQuestion==="") {
+            dispatch(changeNextColumnUpdate("aiQuestion"))
+          } else if (prevQuestions[prevQuestions.length-1].userAnswer==="") {
+            dispatch(changeNextColumnUpdate("userAnswer"))
+          } else if (prevQuestions[prevQuestions.length-1].aiSummary==="") {
+            dispatch(changeNextColumnUpdate("aiSummary"))
+          } 
+        }
+
+        console.log("nextColumnUpdate:", nextColumnUpdate)
       })
-      setPrevQuestions(questions.data)
-      console.log("questions:", questions)
-
-      if (questions.data.length>0) {
-        if (questions.data[questions.data.length-1].aiQuestion==="") {
-          nextCoulmnUpdate.current="aiQuestion"
-        } else if (questions.data[questions.data.length-1].userAnswer==="") {
-          nextCoulmnUpdate.current="userAnswer"
-        } else if (questions.data[questions.data.length-1].aiSummary==="") {
-          nextCoulmnUpdate.current="aiSummary"
-        } 
-      }
-
-      console.log("nextColumnUpdate:", nextCoulmnUpdate.current)
+      
 
       if (res.status===200) {
         setInterview(res.data)
@@ -65,51 +72,14 @@ const InterviewChatScreen = () => {
     if (startInterview.current && input!=="") {
       handleSubmit(new Event("submit"))
       startInterview.current=false
-      addQuestion()
+      dispatch(addQuestion(Array.isArray(searchParams.interviewId) ? searchParams.interviewId[0] : searchParams.interviewId)) //searchParams.interviewId: string|string[]
     }
   }, [input, startInterview])
 
-  //there almost 40 lines of functions. Maybe I should move them to Redux reducers
-  //also this will make structure of component easier to read and implement new functional
   const startInterviewHanler = (): void => {
     startInterview.current=true
-    nextCoulmnUpdate.current="aiQuestion"
+    dispatch(changeNextColumnUpdate("aiQuestion"))
     setInput("Давай начнём собеседование")
-  }
-
-  const addQuestion = async (): Promise<void> => {
-    const newQuestion = await axios.post(`http://${process.env.EXPO_PUBLIC_IP}:3000/question/add`, {
-      aiQuestion: "",
-      userAnswer: "",
-      aiSummary: "",
-      interviewId: searchParams.interviewId,
-    })
-    console.log("newQuestion:", newQuestion)
-    setPrevQuestions((prevValue: any) => [...prevValue, newQuestion])
-  }
-
-  const changeNextCoulmnUpdate = async (): Promise<void> => {
-    if (nextCoulmnUpdate.current==="aiQuestion") {
-      nextCoulmnUpdate.current="userAnswer"
-    } else if (nextCoulmnUpdate.current==="userAnswer") {
-      nextCoulmnUpdate.current="aiSummary"
-    } else {
-      addQuestion()
-      nextCoulmnUpdate.current="aiQuestion" 
-    } 
-  }
-
-  const patchLastQuestion = async (columnValue: string): Promise<void> => {
-    console.log("prevQuestion from patch func:", prevQuestions)
-    const res = await axios.patch(`http://${process.env.EXPO_PUBLIC_IP}:3000/question/update`, {
-      questionId: prevQuestions[prevQuestions.length-1].id,
-      columnName: nextCoulmnUpdate.current,
-      columnValue
-    })
-    console.log("patchRes:", res)
-    if (res.status===200) {
-      changeNextCoulmnUpdate()
-    }
   }
 
   if (!interview || !prevQuestions) return <Text>Загрузка...</Text>;
@@ -177,7 +147,10 @@ const InterviewChatScreen = () => {
         <TouchableOpacity
           onPress={() => {
             handleSubmit(new Event("submit"))
-            patchLastQuestion(input)
+            dispatch(patchLastQuestion({
+              interviewId: searchParams.interviewId, 
+              columnValue: input
+            }))
           }}
           style={[globalStyles.button, globalStyles.lightThemeButton, {marginLeft: 25, height: 50, alignSelf: 'flex-end'}]}
         ><Text style={{color: 'white'}}>Отправить ответ</Text></TouchableOpacity>
