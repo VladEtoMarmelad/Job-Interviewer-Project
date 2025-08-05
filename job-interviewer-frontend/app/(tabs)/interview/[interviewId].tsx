@@ -16,7 +16,6 @@ const InterviewChatScreen = () => {
   let startInterview = useRef<boolean>(false)  
 
   const prevQuestions: any = useSelector<RootState>(state => state.questions.prevQuestions)
-  const nextColumnUpdate = useSelector<RootState>(state => state.questions.nextColumnUpdate) //which question column will be updated next
   const dispatch = useDispatch<AppDispatch>();
 
   const { messages, input, setInput, handleInputChange, handleSubmit } = useChat({
@@ -31,7 +30,6 @@ const InterviewChatScreen = () => {
       console.log("Finish!")
       console.log("lastAIMessage:", JSON.stringify(lastAIMessage, null, 4))
       dispatch(patchLastQuestion({
-        interviewId: searchParams.interviewId, 
         columnValue: lastAIMessage.content
       }))
     }
@@ -53,13 +51,10 @@ const InterviewChatScreen = () => {
             dispatch(changeNextColumnUpdate("userAnswer"))
           } else if (prevQuestions[prevQuestions.length-1].aiSummary==="") {
             dispatch(changeNextColumnUpdate("aiSummary"))
-          } 
+          }
         }
-
-        console.log("nextColumnUpdate:", nextColumnUpdate)
       })
       
-
       if (res.status===200) {
         setInterview(res.data)
       }
@@ -83,7 +78,7 @@ const InterviewChatScreen = () => {
   }
 
   if (!interview || !prevQuestions) return <Text>Загрузка...</Text>;
-  if (prevQuestions.length===0) return (
+  if (prevQuestions.length===0 && messages.length===0) return (
     <View style={{
         flex: 1,
         justifyContent: 'center',
@@ -108,11 +103,9 @@ const InterviewChatScreen = () => {
         flexDirection: 'row'
 			}}
     >
-      
     <View style={{height: '100%', flexDirection: 'column', width: '85%', padding: 5}}>
       <FlatList 
-        data={prevQuestions} 
-        
+        data={prevQuestions}
         showsVerticalScrollIndicator={false}
         keyExtractor={question => question.id}
         renderItem={({item: question}) => 
@@ -123,6 +116,28 @@ const InterviewChatScreen = () => {
       />
 
       <View style={{flexDirection: 'row'}}>
+        {/* {
+          <TouchableOpacity
+            onPress={() => {
+              handleSubmit(new Event("submit"))
+            }}
+            style={[
+              globalStyles.button, 
+              globalStyles.lightThemeButton, 
+              {
+                position: 'absolute', 
+                top: 0, 
+                right: 0, 
+                bottom: 0, 
+                left: 0, 
+                margin: 'auto', 
+                width: 125, 
+                height: 50
+              }
+            ]}
+          ><Text style={{color: 'white', textAlign: 'center'}}>Продолжить</Text></TouchableOpacity>
+        } */}
+
         <TextInput
           placeholder="Скажите что-то..."
           value={input}
@@ -148,7 +163,6 @@ const InterviewChatScreen = () => {
           onPress={() => {
             handleSubmit(new Event("submit"))
             dispatch(patchLastQuestion({
-              interviewId: searchParams.interviewId, 
               columnValue: input
             }))
           }}
@@ -183,6 +197,8 @@ const InterviewChatScreen = () => {
         thumbTintColor="blue"
       />
     </View>
+
+    
   </View>
   )
 }
