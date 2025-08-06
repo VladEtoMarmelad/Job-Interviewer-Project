@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useLocalSearchParams } from 'expo-router';
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { addQuestion, changeNextColumnUpdate, patchLastQuestion, getPrevQuestions } from "@/features/questionSlice";
+import { addQuestion, changeNextColumnUpdate, patchLastQuestion, getPrevQuestions, changeInitialState } from "@/features/questionSlice";
 import Slider from '@react-native-community/slider';
 import globalStyles from "@/styles/GlobalStyles"
 import axios from "axios";
@@ -16,6 +16,7 @@ const InterviewChatScreen = () => {
   let startInterview = useRef<boolean>(false)  
 
   const prevQuestions: any = useSelector<RootState>(state => state.questions.prevQuestions)
+  const showContinueButton: any = useSelector<RootState>(state => state.questions.showContinueButton)
   const dispatch = useDispatch<AppDispatch>();
 
   const { messages, input, setInput, handleInputChange, handleSubmit } = useChat({
@@ -24,13 +25,15 @@ const InterviewChatScreen = () => {
     body: {
       interviewId: searchParams.interviewId,
       jobTitle: interview?.jobTitle,
-      requiredKnowledge: interview?.requiredKnowledge
+      requiredKnowledge: interview?.requiredKnowledge,
+      prevQuestions: prevQuestions
     },
     onFinish: async (lastAIMessage) => {
       console.log("Finish!")
       console.log("lastAIMessage:", JSON.stringify(lastAIMessage, null, 4))
       dispatch(patchLastQuestion({
-        columnValue: lastAIMessage.content
+        columnValue: lastAIMessage.content,
+        interviewId: searchParams.interviewId
       }))
     }
   });
@@ -45,6 +48,17 @@ const InterviewChatScreen = () => {
         console.log("prevQuestions:", prevQuestions)
 
         if (prevQuestions.length>0) {
+          if (
+            prevQuestions[prevQuestions.length-1].aiQuestion==="" && 
+            prevQuestions[prevQuestions.length-1].userAnswer==="" && 
+            prevQuestions[prevQuestions.length-1].aiSummary===""
+          ) {
+            dispatch(changeInitialState({
+              fieldName: "showContinueButton",
+              fieldValue: true
+            }))
+          }
+
           if (prevQuestions[prevQuestions.length-1].aiQuestion==="") {
             dispatch(changeNextColumnUpdate("aiQuestion"))
           } else if (prevQuestions[prevQuestions.length-1].userAnswer==="") {
@@ -69,12 +83,24 @@ const InterviewChatScreen = () => {
       startInterview.current=false
       dispatch(addQuestion(Array.isArray(searchParams.interviewId) ? searchParams.interviewId[0] : searchParams.interviewId)) //searchParams.interviewId: string|string[]
     }
-  }, [input, startInterview])
+    if (showContinueButton && input!=="") {
+      handleSubmit(new Event("submit"))
+      dispatch(changeInitialState({
+        fieldName: "showContinueButton",
+        fieldValue: false
+      }))
+    }
+  }, [input, startInterview, showContinueButton])
 
   const startInterviewHanler = (): void => {
     startInterview.current=true
     dispatch(changeNextColumnUpdate("aiQuestion"))
     setInput("Давай начнём собеседование")
+  }
+
+  const continueInterviewHanler = (): void => {
+    dispatch(changeNextColumnUpdate("aiQuestion"))
+    setInput("Давай продолжим собеседование")
   }
 
   if (!interview || !prevQuestions) return <Text>Загрузка...</Text>;
@@ -86,6 +112,7 @@ const InterviewChatScreen = () => {
         backgroundColor: '#f2f2f2',
         flexDirection: 'row'
 		}}>
+      <Text>{showContinueButton && "showContinueButton тоже трУ!"}</Text>
       <TouchableOpacity
         onPress={startInterviewHanler}
         style={[globalStyles.button, globalStyles.lightThemeButton, {alignSelf: 'center'}]}
@@ -116,11 +143,9 @@ const InterviewChatScreen = () => {
       />
 
       <View style={{flexDirection: 'row'}}>
-        {/* {
+        {showContinueButton &&
           <TouchableOpacity
-            onPress={() => {
-              handleSubmit(new Event("submit"))
-            }}
+            onPress={continueInterviewHanler}
             style={[
               globalStyles.button, 
               globalStyles.lightThemeButton, 
@@ -136,7 +161,7 @@ const InterviewChatScreen = () => {
               }
             ]}
           ><Text style={{color: 'white', textAlign: 'center'}}>Продолжить</Text></TouchableOpacity>
-        } */}
+        }
 
         <TextInput
           placeholder="Скажите что-то..."

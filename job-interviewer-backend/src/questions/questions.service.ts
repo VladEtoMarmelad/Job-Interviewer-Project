@@ -15,6 +15,7 @@ export class QuestionsService {
   }
 
   async add(questionData: any): Promise<any> {
+    console.log("questionData:", JSON.stringify(questionData, null, 4))
     const { aiQuestion, userAnswer, aiSummary, interviewId } = questionData
     const newQuestion = this.questionsRepository.create({
       aiQuestion,

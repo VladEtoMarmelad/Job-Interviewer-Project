@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import axios from 'axios'
 
 const addQuestionFunction = async (interviewId: number|string): Promise<any> => {
@@ -20,7 +20,12 @@ export const addQuestion = createAsyncThunk("question/add", async (interviewId: 
   return addQuestionFunction(interviewId)
 })
 
-export const patchLastQuestion = createAsyncThunk("question/patch", async (data: any, {getState}): Promise<"aiQuestion"|"userAnswer"|"aiSummary"|null> => {
+interface PatchLastQuestionRes {
+  nextColumnUpdate: "aiQuestion"|"userAnswer"|"aiSummary"|null;
+  lastQuestionId: number|null
+}
+
+export const patchLastQuestion = createAsyncThunk("question/patch", async (data: any, {getState}): Promise<PatchLastQuestionRes> => {
   const state: any = getState();
   const { nextColumnUpdate, lastQuestionId } = state.questions
   console.log("patchData:")
@@ -37,15 +42,27 @@ export const patchLastQuestion = createAsyncThunk("question/patch", async (data:
   console.log("patchRes:", res)
   if (res.status===200) {
     if (nextColumnUpdate==="aiQuestion") {
-      return "userAnswer"
+      return {
+        nextColumnUpdate: "userAnswer",
+        lastQuestionId: null
+      }
     } else if (nextColumnUpdate==="userAnswer") {
-      return "aiSummary"
+      return {
+        nextColumnUpdate: "aiSummary",
+        lastQuestionId: null
+      }
     } else {
-      addQuestionFunction(data.interviewId)
-      return "aiQuestion"
+      const newQuestion = await addQuestionFunction(data.interviewId)
+      return {
+        nextColumnUpdate: "aiQuestion",
+        lastQuestionId: newQuestion.data.id
+      }
     } 
   }
-  return null
+  return {
+    nextColumnUpdate: null,
+    lastQuestionId: null
+  }
 })
 
 export const getPrevQuestions = createAsyncThunk("question/get", async (interviewId: number|string) => {
@@ -60,7 +77,12 @@ export interface QuestionState {
   lastQuestionId: number|null
   prevQuestions: any,
   nextColumnUpdate: "aiQuestion"|"userAnswer"|"aiSummary"|null,
-  showContinueButton: boolean //show button, that appears between questions or no
+  showContinueButton: boolean //show button, that appears between questions
+}
+
+interface ChangeStatePayload {
+  fieldName: keyof QuestionState; 
+  fieldValue: any;
 }
 
 const initialState: QuestionState = {
@@ -76,16 +98,28 @@ export const questionSlice = createSlice({
   reducers: {
     changeNextColumnUpdate: (state, action): void => {
       state.nextColumnUpdate=action.payload
+    },
+    changeInitialState: (state, action: PayloadAction<ChangeStatePayload>): void => {
+      const { fieldName, fieldValue } = action.payload
+      state[fieldName] = fieldValue
     }
   },
   extraReducers: (builder) => {
     builder
     .addCase(addQuestion.fulfilled, (state, action) => {
+      console.log(`state.lastQuestionId: ${state.lastQuestionId}`)
+      if (state.lastQuestionId!==null) { //if added question wasn't first
+        state.showContinueButton=true
+      }
       state.lastQuestionId=action.payload.data.id
     })
 
     .addCase(patchLastQuestion.fulfilled, (state, action) => {
-      state.nextColumnUpdate=action.payload
+      state.nextColumnUpdate=action.payload.nextColumnUpdate
+      if (action.payload.nextColumnUpdate==="aiQuestion" && state.lastQuestionId!==null) { //if new question was created
+        state.showContinueButton=true
+        state.lastQuestionId=action.payload.lastQuestionId
+      }
     })
 
     .addCase(getPrevQuestions.fulfilled, (state, action) => {
@@ -97,5 +131,5 @@ export const questionSlice = createSlice({
   }
 })
 
-export const { changeNextColumnUpdate } = questionSlice.actions
+export const { changeNextColumnUpdate, changeInitialState } = questionSlice.actions
 export default questionSlice.reducer
