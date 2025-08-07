@@ -4,9 +4,10 @@ import { useEffect, useState, useRef } from "react";
 import { useLocalSearchParams } from 'expo-router';
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { addQuestion, changeNextColumnUpdate, patchLastQuestion, getPrevQuestions, changeInitialState } from "@/features/questionSlice";
+import { addQuestion, patchLastQuestion, getPrevQuestions, changeInitialState } from "@/features/questionSlice";
 import Slider from '@react-native-community/slider';
-import globalStyles from "@/styles/GlobalStyles"
+import globalStyles from "@/styles/GlobalStyles";
+import styles from '@/styles/InterviewChatScreenStyles';
 import axios from "axios";
 
 const InterviewChatScreen = () => {
@@ -60,11 +61,11 @@ const InterviewChatScreen = () => {
           }
 
           if (prevQuestions[prevQuestions.length-1].aiQuestion==="") {
-            dispatch(changeNextColumnUpdate("aiQuestion"))
+            dispatch(changeInitialState({fieldName: "nextColumnUpdate", fieldValue: "aiQuestion"}))
           } else if (prevQuestions[prevQuestions.length-1].userAnswer==="") {
-            dispatch(changeNextColumnUpdate("userAnswer"))
+            dispatch(changeInitialState({fieldName: "nextColumnUpdate", fieldValue: "userAnswer"}))
           } else if (prevQuestions[prevQuestions.length-1].aiSummary==="") {
-            dispatch(changeNextColumnUpdate("aiSummary"))
+            dispatch(changeInitialState({fieldName: "nextColumnUpdate", fieldValue: "aiSummary"}))
           }
         }
       })
@@ -75,6 +76,10 @@ const InterviewChatScreen = () => {
     }
 
     mountHandler()
+
+    return (): void => {
+      dispatch(changeInitialState({fieldName: "showContinueButton", fieldValue: false}))
+    }
   }, [searchParams.interviewId]) //onMount
 
   useEffect(() => {
@@ -94,12 +99,12 @@ const InterviewChatScreen = () => {
 
   const startInterviewHanler = (): void => {
     startInterview.current=true
-    dispatch(changeNextColumnUpdate("aiQuestion"))
+    dispatch(changeInitialState({fieldName: "nextColumnUpdate", fieldValue: "aiQuestion"}))
     setInput("Давай начнём собеседование")
   }
 
   const continueInterviewHanler = (): void => {
-    dispatch(changeNextColumnUpdate("aiQuestion"))
+    dispatch(changeInitialState({fieldName: "nextColumnUpdate", fieldValue: "aiQuestion"}))
     setInput("Давай продолжим собеседование")
   }
 
@@ -112,7 +117,6 @@ const InterviewChatScreen = () => {
         backgroundColor: '#f2f2f2',
         flexDirection: 'row'
 		}}>
-      <Text>{showContinueButton && "showContinueButton тоже трУ!"}</Text>
       <TouchableOpacity
         onPress={startInterviewHanler}
         style={[globalStyles.button, globalStyles.lightThemeButton, {alignSelf: 'center'}]}
@@ -135,10 +139,13 @@ const InterviewChatScreen = () => {
         data={prevQuestions}
         showsVerticalScrollIndicator={false}
         keyExtractor={question => question.id}
+        style={{maxHeight: '45%'}}
         renderItem={({item: question}) => 
-          <Text>
-            {question.aiQuestion}
-          </Text>
+          <View>
+            {question.aiQuestion !== "" && <View style={[styles.message, styles.assistantMessage, styles.lightThemeAssistantMessage]}><Text>{question.aiQuestion}</Text></View>}
+            {question.userAnswer !== "" && <View style={[styles.message, styles.userMessage, styles.lightThemeUserMessage]}><Text>{question.userAnswer}</Text></View>}
+            {question.aiSummary !== "" && <View style={[styles.message, styles.assistantMessage, styles.lightThemeAssistantMessage]}><Text>{question.aiSummary}</Text></View>}
+          </View>
         }
       />
 
@@ -186,10 +193,12 @@ const InterviewChatScreen = () => {
 
         <TouchableOpacity
           onPress={() => {
-            handleSubmit(new Event("submit"))
-            dispatch(patchLastQuestion({
-              columnValue: input
-            }))
+            if (input!=="") {
+              handleSubmit(new Event("submit"))
+              dispatch(patchLastQuestion({
+                columnValue: input
+              }))
+            }
           }}
           style={[globalStyles.button, globalStyles.lightThemeButton, {marginLeft: 25, height: 50, alignSelf: 'flex-end'}]}
         ><Text style={{color: 'white'}}>Отправить ответ</Text></TouchableOpacity>
@@ -200,9 +209,16 @@ const InterviewChatScreen = () => {
         style={{flex: 1}}
         showsVerticalScrollIndicator={false}
         renderItem={({item: message, index}) => 
-          <Text key={index}>
-            {message.content}
-          </Text>
+          <View 
+            key={index}
+            style={[
+              styles.message, 
+              message.role==="user" ? styles.userMessage: styles.assistantMessage,
+              message.role==="user" ? styles.lightThemeUserMessage: styles.lightThemeAssistantMessage
+            ]}
+          >
+            <Text>{message.content}</Text>
+          </View>
         }
       />
     </View>
@@ -222,8 +238,6 @@ const InterviewChatScreen = () => {
         thumbTintColor="blue"
       />
     </View>
-
-    
   </View>
   )
 }

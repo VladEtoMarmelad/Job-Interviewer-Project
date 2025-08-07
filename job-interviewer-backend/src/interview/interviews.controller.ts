@@ -50,20 +50,19 @@ export class InterviewsController {
       ["assistant", "aiSummary"],
     ];
 
-    const reformattedPrevQuestion: ReformattedPrevQuestion[] = interviewData.prevQuestions.flatMap((prevQuestion: PrevQuestion) =>
+    const reformattedPrevQuestions: ReformattedPrevQuestion[] = interviewData.prevQuestions.flatMap((prevQuestion: PrevQuestion) =>
       rolesAndKeys.map(([role, key]) => ({
         role: role,
-        content: `${prevQuestion[key]}. Это прошлый вопрос/ответ/итог.`
+        content: prevQuestion[key]
       }))
-    );
+    ).filter((question: any) => question.content!==""); // clearing from empty messages. Empty messages cause errors
 
-    console.log("reformattedPrevQuestion:", JSON.stringify(reformattedPrevQuestion, null, 4))
+    console.log("reformattedPrevQuestion:", JSON.stringify(reformattedPrevQuestions, null, 4))
 
     try {
       const result = streamText({
         model: google("gemini-2.0-flash"),
         messages: [
-          //...reformattedPrevQuestion,
           {
             role: "system",
             content: `
@@ -73,6 +72,7 @@ export class InterviewsController {
               После того, как дашь фидбэк на ответ пользователя не задавай сразу сделующий вопрос, а спроси пользователя готов ли он продолжить.
             `
           },
+          ...reformattedPrevQuestions,
           ...interviewData.messages,
         ]
       });

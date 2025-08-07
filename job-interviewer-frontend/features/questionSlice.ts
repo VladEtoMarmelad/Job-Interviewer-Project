@@ -69,15 +69,16 @@ export const getPrevQuestions = createAsyncThunk("question/get", async (intervie
   const prevQuestions = await axios.get(`http://${process.env.EXPO_PUBLIC_IP}:3000/question/findByInterview`, {
     params: {interviewId: interviewId}
   })
-
-  return prevQuestions.data
+  console.log("prevQuestions:", prevQuestions.data)
+  console.log("prevQuestionsSorted:", prevQuestions.data.sort((firstQuestion: any, secondQuestion: any) => firstQuestion.id - secondQuestion.id))
+  return prevQuestions.data.sort((firstQuestion: any, secondQuestion: any) => firstQuestion.id - secondQuestion.id)
 })
 
 export interface QuestionState {
-  lastQuestionId: number|null
-  prevQuestions: any,
-  nextColumnUpdate: "aiQuestion"|"userAnswer"|"aiSummary"|null,
-  showContinueButton: boolean //show button, that appears between questions
+  lastQuestionId: number|null;
+  prevQuestions: any;
+  nextColumnUpdate: "aiQuestion"|"userAnswer"|"aiSummary"|null;
+  showContinueButton: boolean; //show button, that appears between questions
 }
 
 interface ChangeStatePayload {
@@ -96,9 +97,6 @@ export const questionSlice = createSlice({
   name: "question",
   initialState,
   reducers: {
-    changeNextColumnUpdate: (state, action): void => {
-      state.nextColumnUpdate=action.payload
-    },
     changeInitialState: (state, action: PayloadAction<ChangeStatePayload>): void => {
       const { fieldName, fieldValue } = action.payload
       state[fieldName] = fieldValue
@@ -131,5 +129,5 @@ export const questionSlice = createSlice({
   }
 })
 
-export const { changeNextColumnUpdate, changeInitialState } = questionSlice.actions
+export const { changeInitialState } = questionSlice.actions
 export default questionSlice.reducer
