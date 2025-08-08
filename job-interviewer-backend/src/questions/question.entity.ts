@@ -15,9 +15,6 @@ export class Question {
   @Column({type: "text", default: ""})
   aiSummary: string;
 
-  @ManyToOne(() => Interview, (interview) => interview.questions)
+  @ManyToOne(() => Interview, (interview) => interview.questions, {onDelete: "CASCADE"})
   interview: Interview
 }
-
-//React Native Junior
-//HTML Css JS TS React React Native Expo NextJS Redux

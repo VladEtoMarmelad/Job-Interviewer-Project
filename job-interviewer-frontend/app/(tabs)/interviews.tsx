@@ -1,6 +1,7 @@
 import { View, Text, FlatList } from "react-native";
 import { useState, useEffect } from "react";
 import { Link } from 'expo-router';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import axios from "axios";
 
 const Interviews = () => {
@@ -27,18 +28,31 @@ const Interviews = () => {
         keyExtractor={interview => interview.id}
         style={{marginTop: 15}}
         renderItem={({item: interview}) => 
-          <Link 
-            href={{
-              pathname: "/interview/[interviewId]", 
-              params: {interviewId: interview.id}
-            }}
-            style={{width: '80%', height: 75, backgroundColor: 'lightgray', alignSelf: 'center', borderRadius: 10, marginTop: 5}}
-          >
-            <View style={{padding: 5}}>
-              <Text style={{fontWeight: 'bold', fontSize: 15}}>{interview.jobTitle}</Text>
-              <Text style={{fontWeight: 500, fontSize: 15}}>Требуемые умения: {interview.requiredKnowledge}</Text>
+          <View style={{flexDirection: 'row', width: '80%', height: 75, backgroundColor: 'lightgray', alignSelf: 'center', borderRadius: 10, marginTop: 5}}>
+            <Link 
+              href={{
+                pathname: "/interview/[interviewId]", 
+                params: {interviewId: interview.id}
+              }}
+              style={{width: '100%', backgroundColor: 'lightgray', alignSelf: 'center', borderRadius: 10, marginTop: 5}}
+            >
+              <View style={{padding: 5}}>
+                <Text style={{fontWeight: 'bold', fontSize: 15}}>{interview.jobTitle}</Text>
+                <Text style={{fontWeight: 500, fontSize: 15}}>Требуемые умения: {interview.requiredKnowledge}</Text>
+              </View>
+            </Link>
+
+            <View style={{height: '100%', borderLeftColor: 'black', borderLeftWidth: 1, justifyContent: 'center', padding: 10}}>
+              <Link 
+                href={{
+                  pathname: "/interview/settings/[interviewId]",
+                  params: {interviewId: interview.id}
+                }}
+              >
+                <FontAwesome name="gear" size={24} color="black" />
+              </Link>
             </View>
-          </Link>
+          </View>
         }
       />
     </View>

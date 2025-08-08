@@ -12,6 +12,7 @@ import axios from "axios";
 
 const InterviewChatScreen = () => {
   const searchParams = useLocalSearchParams();
+  const interviewId = Array.isArray(searchParams.interviewId) ? searchParams.interviewId[0] : searchParams.interviewId; //searchParams.interviewId: string|string[]
   const [interview, setInterview] = useState<any>(null)
   const [chatHeight, setChatHeight] = useState<number>(100)
   let startInterview = useRef<boolean>(false)  
@@ -24,17 +25,15 @@ const InterviewChatScreen = () => {
     api: `http://${process.env.EXPO_PUBLIC_IP}:3000/interview/chatAI`,
     onError: error => console.error(error, "ERROR"),
     body: {
-      interviewId: searchParams.interviewId,
+      interviewId: interviewId,
       jobTitle: interview?.jobTitle,
       requiredKnowledge: interview?.requiredKnowledge,
       prevQuestions: prevQuestions
     },
     onFinish: async (lastAIMessage) => {
-      console.log("Finish!")
-      console.log("lastAIMessage:", JSON.stringify(lastAIMessage, null, 4))
       dispatch(patchLastQuestion({
         columnValue: lastAIMessage.content,
-        interviewId: searchParams.interviewId
+        interviewId: interviewId
       }))
     }
   });
@@ -42,12 +41,10 @@ const InterviewChatScreen = () => {
   useEffect(() => { //onMount
     const mountHandler = async (): Promise<void> => {
       const res = await axios.get(`http://${process.env.EXPO_PUBLIC_IP}:3000/interview/findOne`, {
-        params: {interviewId: searchParams.interviewId}
+        params: {interviewId: interviewId}
       })
 
-      dispatch(getPrevQuestions(Array.isArray(searchParams.interviewId) ? searchParams.interviewId[0] : searchParams.interviewId)).unwrap().then(prevQuestions => {
-        console.log("prevQuestions:", prevQuestions)
-
+      dispatch(getPrevQuestions(interviewId)).unwrap().then(prevQuestions => {
         if (prevQuestions.length>0) {
           if (
             prevQuestions[prevQuestions.length-1].aiQuestion==="" && 
@@ -80,13 +77,13 @@ const InterviewChatScreen = () => {
     return (): void => {
       dispatch(changeInitialState({fieldName: "showContinueButton", fieldValue: false}))
     }
-  }, [searchParams.interviewId]) //onMount
+  }, [interviewId]) //onMount
 
   useEffect(() => {
     if (startInterview.current && input!=="") {
       handleSubmit(new Event("submit"))
       startInterview.current=false
-      dispatch(addQuestion(Array.isArray(searchParams.interviewId) ? searchParams.interviewId[0] : searchParams.interviewId)) //searchParams.interviewId: string|string[]
+      dispatch(addQuestion(interviewId)) 
     }
     if (showContinueButton && input!=="") {
       handleSubmit(new Event("submit"))
@@ -182,10 +179,6 @@ const InterviewChatScreen = () => {
               },
             } as unknown as React.ChangeEvent<HTMLInputElement>)
           }
-          onSubmitEditing={e => {
-            handleSubmit(e);
-            e.preventDefault();
-          }}
           autoFocus={true}
           multiline
           style={[globalStyles.input, globalStyles.lightThemeInput, {width: '100%', height: chatHeight}]}

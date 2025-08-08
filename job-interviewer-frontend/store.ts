@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
 import questionsReducer from '@/features/questionSlice'
+import interviewsReducer from '@/features/interviewSlice'
 
 export const store = configureStore({
   reducer: {
-    questions: questionsReducer
+    questions: questionsReducer,
+    interviews: interviewsReducer
   }
 })
 

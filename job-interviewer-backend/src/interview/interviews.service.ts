@@ -18,7 +18,7 @@ export class InterviewsService {
     return this.interviewsRepository.findOneBy({ id });
   }
 
-  async remove(id: number): Promise<void> {
+  async delete(id: number): Promise<void> {
     await this.interviewsRepository.delete(id);
   }
 

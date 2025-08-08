@@ -30,8 +30,13 @@ export default function TabLayout() {
         <Tabs.Screen
           name="interview/[interviewId]"
           options={{
-            href: null, 
-            headerShown: false
+            href: null
+          }}
+        />
+        <Tabs.Screen
+          name="interview/settings/[interviewId]"
+          options={{
+            href: null
           }}
         />
       </Tabs>
