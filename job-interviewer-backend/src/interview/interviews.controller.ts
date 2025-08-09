@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, Body, Res, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Query, Body, Res, Delete, Put } from '@nestjs/common';
 import { InterviewsService } from './interviews.service';
 import { google } from '@ai-sdk/google';
 import { streamText } from 'ai';
@@ -31,6 +31,11 @@ export class InterviewsController {
   @Delete("delete")
   delete(@Query("interviewId") interviewId: number) {
     return this.interviewsService.delete(interviewId)
+  }
+
+  @Put("put")
+  put(@Body() interviewData: any): any {
+    return this.interviewsService.put(interviewData)
   }
 
   @Post("chatAI")

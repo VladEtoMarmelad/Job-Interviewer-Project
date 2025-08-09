@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 
 const styles = StyleSheet.create({
   zone: {
@@ -14,13 +14,20 @@ const styles = StyleSheet.create({
     borderColor: 'red',
   },
 
+  blurContainer: {
+    zIndex: 150,
+    position: 'absolute',
+    width: '100%',
+    height: '100%'
+  },
+
   confirmZone: {
     zIndex: 100,
     padding: 25,
-    width: '75%',
+    width: Platform.OS === "web" ? '50%' : '75%',
     position: 'absolute', 
     top: 0, 
-    left: '12.5%', 
+    left: Platform.OS === "web" ? '25%' : '12.5%', 
     right: 0,
     bottom: 0, 
     borderWidth: 2, 

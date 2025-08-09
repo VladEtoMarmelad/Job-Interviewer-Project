@@ -8,9 +8,11 @@ interface Props {
   rules: any;
   inputType?: "text" | "number" | "textarea";
   labelPostion?: "left"|"top";
+
+  inputStyles?: any;
 }
 
-export const InputAndLabel: React.FC<Props> = ({name, placeholder, control, rules, inputType="text", labelPostion="left"}) => {
+export const InputAndLabel: React.FC<Props> = ({name, placeholder, control, rules, inputType="text", labelPostion="left", inputStyles={}}) => {
   return (
     <View style={{flexDirection: labelPostion==="left" ? 'row' : 'column'}}>
       <Text style={{fontWeight: 'bold', fontSize: 18}}>{placeholder}</Text>
@@ -20,6 +22,7 @@ export const InputAndLabel: React.FC<Props> = ({name, placeholder, control, rule
         control={control}
         rules={rules}
         type={inputType}
+        styles={inputStyles}
       />
     </View>
   )

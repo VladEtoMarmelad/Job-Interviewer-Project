@@ -29,6 +29,14 @@ export class InterviewsService {
     return this.interviewsRepository.save(newInterview)
   }
 
+  async put(interviewData: any): Promise<any> {
+    return this.interviewsRepository.update(interviewData.id, {
+      jobTitle: interviewData.jobTitle,
+      requiredKnowledge: interviewData.requiredKnowledge,
+      questionsAmount: interviewData.questionsAmount
+    })
+  }
+
   async getVacancyFromURL(url: string): Promise<string> { //можно попытаться использовать полученое, как промпт для ИИ, чтобы передавать ему не информацию формы, а ссылку на вакансию
     const response = await fetch(url)
     const resText: string = await response.text()

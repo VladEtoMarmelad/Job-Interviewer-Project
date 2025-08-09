@@ -8,9 +8,10 @@ interface Props {
   control: any
   rules: any
   type?: "text" | "number" | "textarea"
+	styles?: any
 }
 
-export const Input: React.FC<Props> = ({name, placeholder, control, rules, type="text"}) => {
+export const Input: React.FC<Props> = ({name, placeholder, control, rules, type="text", styles={}}) => {
   return (
     <Controller
 			name={name}
@@ -22,7 +23,7 @@ export const Input: React.FC<Props> = ({name, placeholder, control, rules, type=
 					onBlur={onBlur}
 					onChangeText={onChange}
 					value={value}
-					style={[globalStyles.input, globalStyles.lightThemeInput]}
+					style={[globalStyles.input, globalStyles.lightThemeInput, styles]}
   				keyboardType={type==="number" ? "number-pad" : "default"}
 					multiline={type==="textarea" ? true : false}
           numberOfLines={type==="textarea" ? 3 : 1}

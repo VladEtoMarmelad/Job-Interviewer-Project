@@ -24,6 +24,12 @@ export const deleteInterview = createAsyncThunk("interview/delete", async (inter
   return deleteRes
 })
 
+export const putInterview = createAsyncThunk("interview/put", async (interviewData: any) => {
+  const putRes = await axios.put(`http://${process.env.EXPO_PUBLIC_IP}:3000/interview/put`, interviewData)
+  console.log("putRes:", putRes)
+  return putRes
+})
+
 export const interviewSlice = createSlice({
   name: "interview",
   initialState,
