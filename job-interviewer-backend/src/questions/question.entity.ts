@@ -15,6 +15,8 @@ export class Question {
   @Column({type: "text", default: ""})
   aiSummary: string;
 
+
+  
   @ManyToOne(() => Interview, (interview) => interview.questions, {onDelete: "CASCADE"})
   interview: Interview
 }

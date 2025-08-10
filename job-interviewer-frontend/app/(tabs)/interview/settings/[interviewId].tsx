@@ -45,6 +45,11 @@ const InterviewSettingsScreen = () => {
     }
   }, [interview])
 
+  const putInterviewHandler = (interviewData: any) => {
+    interviewData.id = interviewId
+    dispatch(putInterview(interviewData))
+  }
+
   if (!interview) return <Text>Загрузка...</Text>
 
 	return (
@@ -103,16 +108,15 @@ const InterviewSettingsScreen = () => {
               
             </View>
 
-            <View style={{width: 1, height: '100%', marginHorizontal: 15, backgroundColor: '#d8d8d8'}}/> {/*Vertical line between Views*/}
+            {/* Vertical line between Views */}
+            <View style={{width: 1, height: '100%', marginHorizontal: 15, backgroundColor: '#d8d8d8'}}/> 
 
             <View style={{width: '49%'}}>
 
             </View>
           </View>
           <TouchableOpacity 
-            // onPress={handleSubmit(() => dispatch(putInterview({
-              
-            // })))}
+             onPress={handleSubmit(putInterviewHandler)}
             style={[globalStyles.button, globalStyles.lightThemeButton, {alignSelf: 'center'}]}
           >
             <Text style={{color: 'white'}}>Сохранить изменения</Text>

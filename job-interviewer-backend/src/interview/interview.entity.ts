@@ -1,16 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne } from 'typeorm';
 import { Question } from 'src/questions/question.entity';
+import { User } from 'src/user/user.entity';
 
 @Entity({name: "interviews"})
 export class Interview {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToMany(() => Question, (question) => question.interview)
-  questions: Question[]
-
-
-  
   @Column({type: "varchar", length: 100, default: ""})
   jobTitle: string;
 
@@ -19,4 +15,12 @@ export class Interview {
 
   @Column({ default: 10 })
   questionsAmount: number;
+
+
+
+  @OneToMany(() => Question, (question) => question.interview)
+  questions: Question[]
+
+  @ManyToOne(() => User, (user) => user.interviews, {onDelete: "CASCADE"})
+  user: User
 }

@@ -5,8 +5,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Interview } from './interview/interview.entity';
 import { Question } from './questions/question.entity';
+import { User } from './user/user.entity';
 import { InterviewsModule } from './interview/interviews.module';
 import { QuestionsModule } from './questions/questions.module';
+import { UsersModule } from './user/users.module';
 
 @Module({
   imports: [
@@ -18,11 +20,12 @@ import { QuestionsModule } from './questions/questions.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [Interview, Question],
+      entities: [Interview, Question, User],
       synchronize: true,
     }),
     InterviewsModule,
-    QuestionsModule
+    QuestionsModule,
+    UsersModule
   ],
   controllers: [AppController],
   providers: [AppService],
