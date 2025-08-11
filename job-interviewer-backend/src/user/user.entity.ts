@@ -9,6 +9,9 @@ export class User {
   @Column({type: "varchar", length: 50, default: ""})
   name: string;
 
+  @Column({type: "text", default: ""})
+  password: string
+
 
 
   @OneToMany(() => Interview, (interview) => interview.user)
