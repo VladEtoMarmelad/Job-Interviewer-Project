@@ -1,7 +1,12 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useEffect, useContext } from 'react';
+import { useDispatch } from 'react-redux';
 import { Platform } from 'react-native';
+import { decodeJWT } from '@/utils/decodeJWT';
+import { AppDispatch } from '@/store';
+import { setUser } from '@/features/sessionSlice';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
+
 
 interface AuthContextInterface {
   user?: any;
@@ -46,40 +51,41 @@ const deleteItem = async (key: string): Promise<void> => {
 }
 
 export const AuthProvider = ({children}: any) => {
-  const [user, setUser] = useState<any>(null);
+  const dispatch = useDispatch<AppDispatch>();
+
   useEffect(() => {
     const loadUser = async () => {
       const token: string|null = await getItem("userToken");
       if (token) {
-        setUser(token);
+        dispatch(setUser(decodeJWT(token)));
       }
     };
     loadUser();
   }, [])
 
-  const register = async (userData: any): Promise<any> => {
+  const register = async (userData: any): Promise<void> => {
     try {
-      const newUserToken = await axios.post(`http://${process.env.EXPO_PUBLIC_IP}:3000/auth/register`, userData) //user object instead of token right now
+      const newUserToken = await axios.post(`http://${process.env.EXPO_PUBLIC_IP}:3000/auth/register`, userData)
       console.log("newUserToken:", newUserToken)
-      setUser(newUserToken.data);
-      //await setItem("userToken", newUserToken.data);
+      dispatch(setUser(decodeJWT(newUserToken.data)));
+      await setItem("userToken", newUserToken.data);
     } catch (error) {
       console.error("Error occured while registering new user:", error)
     }
   }
 
-  const signIn = async (username: string, password: string) => {
+  const signIn = async (username: string, password: string): Promise<void> => {
     const userToken = await axios.post(`http://${process.env.EXPO_PUBLIC_IP}:3000/auth/signin`, {username, password})
-    setUser(userToken.data);
+    dispatch(setUser(decodeJWT(userToken.data)));
     await setItem("userToken", userToken.data);
   }
 
   const signOut = async () => {
-    setUser(null);
+    dispatch(setUser(null));
     await deleteItem("userToken");
   };
 
-  const value: any = { user, register, signIn, signOut }
+  const value: any = { register, signIn, signOut }
 
   return (
     <AuthContext.Provider value={value}>

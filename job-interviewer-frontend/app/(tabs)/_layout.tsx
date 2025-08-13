@@ -5,11 +5,12 @@ import { store } from '@/store';
 import { AuthProvider } from '@/components/AuthProvider';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 export default function TabLayout() {
   return (
-    <AuthProvider>
-      <Provider store={store}>
+    <Provider store={store}>
+      <AuthProvider>
         <Tabs screenOptions={{
           tabBarPosition: Platform.OS === "web" ? "left" : "bottom",
           tabBarActiveTintColor: 'blue', 
@@ -30,6 +31,13 @@ export default function TabLayout() {
             }}
           />
           <Tabs.Screen
+            name="register"
+            options={{
+              title: "Register",
+              tabBarIcon: () => <AntDesign name="adduser" size={24} color="black" />
+            }}
+          />
+          <Tabs.Screen
             name="interview/[interviewId]"
             options={{
               href: null
@@ -42,7 +50,7 @@ export default function TabLayout() {
             }}
           />
         </Tabs>
-      </Provider>
-    </AuthProvider>
+      </AuthProvider>
+    </Provider>
   );
 }

@@ -6,7 +6,6 @@ import axios from "axios"
 import globalStyles from "@/styles/GlobalStyles"
 
 export default function Index() {
-
 	interface FormData {
 		jobTitle: string
 		requiredKnowledge: string

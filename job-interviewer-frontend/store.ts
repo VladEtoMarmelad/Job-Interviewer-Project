@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
 import questionsReducer from '@/features/questionSlice'
 import interviewsReducer from '@/features/interviewSlice'
+import sessionsReducer from '@/features/sessionSlice'
 
 export const store = configureStore({
   reducer: {
     questions: questionsReducer,
-    interviews: interviewsReducer
+    interviews: interviewsReducer,
+    session: sessionsReducer
   }
 })
 

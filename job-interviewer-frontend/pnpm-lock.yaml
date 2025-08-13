@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@ai-sdk/react':
         specifier: ^1.2.12
-        version: 1.2.12(react@19.0.0)(zod@3.25.76)
+        version: 1.2.12(react@19.0.0)(zod@4.0.17)
       '@expo/vector-icons':
         specifier: ^14.1.0
         version: 14.1.0(expo-font@13.3.2(expo@53.0.20(@babel/core@7.28.0)(@expo/metro-runtime@5.0.4(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0)))(react-native-webview@13.13.5(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react@19.0.0))(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
@@ -107,6 +107,9 @@ importers:
       react-redux:
         specifier: ^9.2.0
         version: 9.2.0(@types/react@19.0.14)(react@19.0.0)(redux@5.0.1)
+      zod:
+        specifier: ^4.0.17
+        version: 4.0.17
     devDependencies:
       '@babel/core':
         specifier: ^7.28.0
@@ -4084,40 +4087,40 @@ packages:
     peerDependencies:
       zod: ^3.24.1
 
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+  zod@4.0.17:
+    resolution: {integrity: sha512-1PHjlYRevNxxdy2JZ8JcNAw7rX8V9P1AKkP+x/xZfxB0K5FYfuV+Ug6P/6NVSR2jHQ+FzDDoDHS04nYUsOIyLQ==}
 
 snapshots:
 
   '@0no-co/graphql.web@1.1.2': {}
 
-  '@ai-sdk/provider-utils@2.2.8(zod@3.25.76)':
+  '@ai-sdk/provider-utils@2.2.8(zod@4.0.17)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
       nanoid: 3.3.11
       secure-json-parse: 2.7.0
-      zod: 3.25.76
+      zod: 4.0.17
 
   '@ai-sdk/provider@1.1.3':
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@1.2.12(react@19.0.0)(zod@3.25.76)':
+  '@ai-sdk/react@1.2.12(react@19.0.0)(zod@4.0.17)':
     dependencies:
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
-      '@ai-sdk/ui-utils': 1.2.11(zod@3.25.76)
+      '@ai-sdk/provider-utils': 2.2.8(zod@4.0.17)
+      '@ai-sdk/ui-utils': 1.2.11(zod@4.0.17)
       react: 19.0.0
       swr: 2.3.4(react@19.0.0)
       throttleit: 2.1.0
     optionalDependencies:
-      zod: 3.25.76
+      zod: 4.0.17
 
-  '@ai-sdk/ui-utils@1.2.11(zod@3.25.76)':
+  '@ai-sdk/ui-utils@1.2.11(zod@4.0.17)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
-      zod: 3.25.76
-      zod-to-json-schema: 3.24.6(zod@3.25.76)
+      '@ai-sdk/provider-utils': 2.2.8(zod@4.0.17)
+      zod: 4.0.17
+      zod-to-json-schema: 3.24.6(zod@4.0.17)
 
   '@ampproject/remapping@2.3.0':
     dependencies:
@@ -8873,8 +8876,8 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zod-to-json-schema@3.24.6(zod@3.25.76):
+  zod-to-json-schema@3.24.6(zod@4.0.17):
     dependencies:
-      zod: 3.25.76
+      zod: 4.0.17
 
-  zod@3.25.76: {}
+  zod@4.0.17: {}
