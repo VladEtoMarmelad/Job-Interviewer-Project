@@ -15,7 +15,7 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) {}
   
-  async register(userData: UserData): Promise<any> {
+  async register(userData: UserData): Promise<string> {
     const newUser = await this.usersService.add(userData)
     const { password, ...result } = newUser;
     const payload = { sub: result.id, username: result.name };

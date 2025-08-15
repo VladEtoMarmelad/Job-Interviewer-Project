@@ -1,9 +1,9 @@
-import { Text, View, TouchableOpacity } from "react-native";
+import { Text, View, TouchableOpacity, AppState } from "react-native";
 import { useForm } from "react-hook-form"
 import { Input }  from "@/components/Input";
 import { useRouter } from "expo-router";
 import axios from "axios"
-import globalStyles from "@/styles/GlobalStyles"
+import globalStyles from "@/styles/GlobalStyles";
 
 export default function Index() {
 	interface FormData {

@@ -7,7 +7,7 @@ export const store = configureStore({
   reducer: {
     questions: questionsReducer,
     interviews: interviewsReducer,
-    session: sessionsReducer
+    sessions: sessionsReducer
   }
 })
 

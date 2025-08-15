@@ -31,10 +31,18 @@ export default function TabLayout() {
             }}
           />
           <Tabs.Screen
+            name="signin"
+            options={{
+              title: "Sign In",
+              tabBarIcon: () => <AntDesign name="user" size={24} color="black" />,
+              tabBarItemStyle: {marginTop: 'auto'}
+            }}
+          />
+          
+          <Tabs.Screen
             name="register"
             options={{
-              title: "Register",
-              tabBarIcon: () => <AntDesign name="adduser" size={24} color="black" />
+              href: null
             }}
           />
           <Tabs.Screen
