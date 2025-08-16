@@ -78,7 +78,7 @@ const RegisterScreen: React.FC = () => {
         </View>
       }
 
-      <Link href="/signin">Уже есть аккаунт? Войти...</Link>
+      <Link href="/signin" style={{marginTop: 15}}>Уже есть аккаунт? Войти...</Link>
     </View>
   )
 }

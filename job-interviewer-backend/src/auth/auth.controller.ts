@@ -1,4 +1,4 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, Req, Res, Get, Delete } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, Get, Delete } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 
@@ -18,10 +18,17 @@ export class AuthController {
     return jwt;
   }
 
-  @HttpCode(HttpStatus.OK)
   @Post("signin")
-  signIn(@Body() signInDto: Record<string, any>) {
-    return this.authService.signIn(signInDto.username, signInDto.password);
+  async signIn(@Body() userData: any, @Res({ passthrough: true }) res: Response) {
+    const jwt = await this.authService.signIn(userData.username, userData.password);
+    console.log("jwt:", jwt)
+    res.status(200).cookie("jwt", jwt, {
+      httpOnly: true, 
+      secure: false, 
+      path: "/",
+      maxAge: 3600000000000000,
+    });
+    return jwt;
   }
 
   @Get("findJWTCookie")

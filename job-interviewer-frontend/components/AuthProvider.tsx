@@ -4,10 +4,11 @@ import { Platform } from 'react-native';
 import { decodeJWT } from '@/utils/decodeJWT';
 import { AppDispatch } from '@/store';
 import { setUser } from '@/features/sessionSlice';
+import { View } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 
-const getItem = async (key: string): Promise<string|null> => {
+export const getItem = async (key: string): Promise<string|null> => {
   if (Platform.OS === "web") {
     try {
       const token = await axios.get(`http://${process.env.EXPO_PUBLIC_IP}:3000/auth/findJWTCookie`, {withCredentials: true})
@@ -36,6 +37,6 @@ export const AuthProvider = ({children}: any) => {
   }, [])
 
   return (
-    {children}
+    <View style={{flex: 1}}>{children}</View>
   );
 }

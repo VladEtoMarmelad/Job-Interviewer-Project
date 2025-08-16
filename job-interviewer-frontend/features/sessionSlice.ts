@@ -27,8 +27,8 @@ export const register = createAsyncThunk("auth/register", async (userData: any) 
 })
 
 export const signIn = createAsyncThunk("auth/signIn", async (userData: any) => {
-  const { username, password } = userData;
-  const userToken = await axios.post(`http://${process.env.EXPO_PUBLIC_IP}:3000/auth/signin`, {username, password})
+  const { name, password } = userData;
+  const userToken = await axios.post(`http://${process.env.EXPO_PUBLIC_IP}:3000/auth/signin`, {username: name, password}, {withCredentials: true})
   if (Platform.OS !== "web") {
     await SecureStore.setItemAsync("jwt", userToken.data); //using secure storage insead of http only cookies if platform !== "web"
   }

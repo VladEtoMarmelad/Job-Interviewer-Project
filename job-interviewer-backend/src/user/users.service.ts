@@ -12,6 +12,7 @@ export class UsersService {
   ) {}
 
   findOneByName(username: string): any {
+    console.log("search username:", username)
     return this.usersRepository.findOneBy({ name: username });
   }
 

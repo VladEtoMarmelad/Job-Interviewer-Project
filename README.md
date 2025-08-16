@@ -13,6 +13,7 @@
    npm run start:frontend
    ```
 
+it's recomended to use IP, as host instead of localhost for both backend and frontend
 ## Troubleshooting
 
 - Error: "ENOENT" reading contents of "some-dir\job-interviewer-project\node_modules"
