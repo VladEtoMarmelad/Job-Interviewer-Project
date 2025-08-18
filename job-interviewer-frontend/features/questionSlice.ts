@@ -9,7 +9,6 @@ const addQuestionFunction = async (interviewId: number|string): Promise<any> => 
       aiSummary: "",
       interviewId
     })
-    console.log("newQuestion:", newQuestion)
     return newQuestion
   } catch (error) {
     console.error(error)
@@ -17,7 +16,8 @@ const addQuestionFunction = async (interviewId: number|string): Promise<any> => 
 }
 
 export const addQuestion = createAsyncThunk("question/add", async (interviewId: number|string) => {
-  return addQuestionFunction(interviewId)
+  const addedQuestion: any = addQuestionFunction(interviewId)
+  return addedQuestion.data
 })
 
 interface PatchLastQuestionRes {
@@ -109,7 +109,7 @@ export const questionSlice = createSlice({
       if (state.lastQuestionId!==null) { //if added question wasn't first
         state.showContinueButton=true
       }
-      state.lastQuestionId=action.payload.data.id
+      state.lastQuestionId=action.payload.id
     })
 
     .addCase(patchLastQuestion.fulfilled, (state, action) => {

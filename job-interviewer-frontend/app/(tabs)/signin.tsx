@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { Link } from "expo-router";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
-import { signIn, signOut } from "@/features/sessionSlice";
+import { signIn } from "@/features/sessionSlice";
 import globalStyles from "@/styles/GlobalStyles"
 
 interface FormData {
@@ -51,11 +51,6 @@ const SignInScreen = () => {
         onPress={handleSubmit(signInHandler)}
         style={[globalStyles.button, globalStyles.lightThemeButton]}
 		  ><Text style={{color: 'white'}}>Войти в аккаунт</Text></TouchableOpacity>
-
-      <TouchableOpacity
-        onPress={() => dispatch(signOut())}
-        style={[globalStyles.button, globalStyles.lightThemeButton]}
-		  ><Text style={{color: 'white'}}>Выйти из аккаунта</Text></TouchableOpacity>
 
       <Link href="/register" style={{marginTop: 15}}>Нету аккаунта? Зарегестрируйтесь!</Link>
     </View>

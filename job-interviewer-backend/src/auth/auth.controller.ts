@@ -20,6 +20,7 @@ export class AuthController {
 
   @Post("signin")
   async signIn(@Body() userData: any, @Res({ passthrough: true }) res: Response) {
+    console.log("userData:", userData)
     const jwt = await this.authService.signIn(userData.username, userData.password);
     console.log("jwt:", jwt)
     res.status(200).cookie("jwt", jwt, {

@@ -5,6 +5,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { addQuestion, patchLastQuestion, getPrevQuestions, changeInitialState } from "@/features/questionSlice";
+import { fetch as expoFetch } from 'expo/fetch';
 import Slider from '@react-native-community/slider';
 import globalStyles from "@/styles/GlobalStyles";
 import styles from '@/styles/InterviewChatScreenStyles';
@@ -22,6 +23,7 @@ const InterviewChatScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const { messages, input, setInput, handleInputChange, handleSubmit } = useChat({
+    fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: `http://${process.env.EXPO_PUBLIC_IP}:3000/interview/chatAI`,
     onError: error => console.error(error, "ERROR"),
     body: {
@@ -31,6 +33,8 @@ const InterviewChatScreen = () => {
       prevQuestions: prevQuestions
     },
     onFinish: async (lastAIMessage) => {
+      console.log("lastAIMessage.content:", lastAIMessage.content)
+      console.log("interviewId:", interviewId)
       dispatch(patchLastQuestion({
         columnValue: lastAIMessage.content,
         interviewId: interviewId
@@ -81,12 +85,12 @@ const InterviewChatScreen = () => {
 
   useEffect(() => {
     if (startInterview.current && input!=="") {
-      handleSubmit(new Event("submit"))
+      handleSubmitWrapper()
       startInterview.current=false
       dispatch(addQuestion(interviewId)) 
     }
     if (showContinueButton && input!=="") {
-      handleSubmit(new Event("submit"))
+      handleSubmitWrapper()
       dispatch(changeInitialState({
         fieldName: "showContinueButton",
         fieldValue: false
@@ -104,6 +108,13 @@ const InterviewChatScreen = () => {
     dispatch(changeInitialState({fieldName: "nextColumnUpdate", fieldValue: "aiQuestion"}))
     setInput("Давай продолжим собеседование")
   }
+
+  const handleSubmitWrapper = (): void => {
+  const mockEvent = {
+    preventDefault: () => {},
+  };
+  handleSubmit(mockEvent);
+};
 
   if (!interview || !prevQuestions) return <Text>Загрузка...</Text>;
   if (prevQuestions.length===0 && messages.length===0) return (
@@ -187,7 +198,7 @@ const InterviewChatScreen = () => {
         <TouchableOpacity
           onPress={() => {
             if (input!=="") {
-              handleSubmit(new Event("submit"))
+              handleSubmitWrapper()
               dispatch(patchLastQuestion({
                 columnValue: input
               }))

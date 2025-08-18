@@ -1,3 +1,4 @@
+import '@/utils/polyfills'
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
 import { Provider } from 'react-redux'
@@ -12,7 +13,8 @@ export default function TabLayout() {
   const [sessionStatus, setSessionStatus] = useState<"unauthenticated"|"authenticated">("unauthenticated")
   useEffect(() => {
     const getSessionStatus = async (): Promise<void> => {
-      const calculatedSessionStatus = await getItem("jwt") === "" ? "unauthenticated" : "authenticated"
+      const jwt = await getItem("jwt");
+      const calculatedSessionStatus = (jwt === "" || jwt === null) ? "unauthenticated" : "authenticated";
       setSessionStatus(calculatedSessionStatus)
     } 
     getSessionStatus();
@@ -51,17 +53,15 @@ export default function TabLayout() {
             }}
           />
 
-          <Tabs.Protected guard={sessionStatus==="authenticated" ? true : false}>
-            <Tabs.Screen
-              name="profile"
-              options={{
-                href: sessionStatus==="unauthenticated" ? null : "/profile",
-                title: "Profile",
-                tabBarIcon: () => <AntDesign name="user" size={24} color="black" />,
-                tabBarItemStyle: {marginTop: 'auto'}
-              }}
-            />
-          </Tabs.Protected>
+          <Tabs.Screen
+            name="profile"
+            options={{
+              href: sessionStatus==="unauthenticated" ? null : "/profile",
+              title: "Profile",
+              tabBarIcon: () => <AntDesign name="user" size={24} color="black" />,
+              tabBarItemStyle: {marginTop: 'auto'}
+            }}
+          />
           
           <Tabs.Screen
             name="register"

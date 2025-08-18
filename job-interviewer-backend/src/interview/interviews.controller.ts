@@ -18,6 +18,11 @@ export class InterviewsController {
     return this.interviewsService.findOne(interviewId)
   }
 
+  @Get("findByUserId")
+  findByUserId(@Query("userId") userId: number) {
+    return this.interviewsService.findByUserId(userId)
+  }
+
   @Get("getFromURL")
   getVacancyFromURL(@Query("vacancyURL") vacancyURL: string): Promise<string> {
     return this.interviewsService.getVacancyFromURL(vacancyURL);

@@ -27,6 +27,7 @@ export class AuthService {
   async signIn(username: string, inputedPassword: string): Promise<string|undefined> {
     try {
       const user = await this.usersService.findOneByName(username);
+      console.log("got this user:", JSON.stringify(user, null, 4))
       if (await verify(user.password, inputedPassword)) {
         const { password, ...result } = user;
         const payload = { sub: result.id, name: result.name };

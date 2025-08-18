@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { InputAndLabel } from "@/components/InputAndLabel";
 import { BlurView } from 'expo-blur';
 import globalStyles from "@/styles/GlobalStyles"
-import styles from "@/styles/InterviewSettingsScreenStyles";
+import settingsStyles from "@/styles/SettingsScreenStyles";
 
 const InterviewSettingsScreen = () => {
 	const searchParams = useLocalSearchParams();
@@ -55,8 +55,8 @@ const InterviewSettingsScreen = () => {
 	return (
     <View style={{flex: 1}}>
       {showDeleteScreen &&
-        <BlurView intensity={10} style={styles.blurContainer}>
-          <View style={[styles.zone, styles.confirmZone, styles.lightThemeConfirmZone]}>
+        <BlurView intensity={10} style={settingsStyles.blurContainer}>
+          <View style={[settingsStyles.zone, settingsStyles.confirmZone, settingsStyles.lightThemeConfirmZone]}>
             <Text style={{alignSelf: 'center'}}>Вы уверены, что хотите удалить интервью "{interview.jobTitle}"?</Text>
             <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
               <TouchableOpacity 
@@ -77,7 +77,7 @@ const InterviewSettingsScreen = () => {
         </BlurView>
       }
       <ScrollView>
-        <View style={styles.zone}>
+        <View style={settingsStyles.zone}>
           <View style={{flexDirection: 'row'}}>
             <View style={{width: '49%'}}>
               <InputAndLabel 
@@ -123,7 +123,7 @@ const InterviewSettingsScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.zone, styles.dangerZone]}>
+        <View style={[settingsStyles.zone, settingsStyles.dangerZone]}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Text>Удалить интервью "{interview.jobTitle}"</Text>
             <TouchableOpacity 

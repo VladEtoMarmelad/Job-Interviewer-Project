@@ -4,6 +4,8 @@ import { Input }  from "@/components/Input";
 import { useRouter } from "expo-router";
 import axios from "axios"
 import globalStyles from "@/styles/GlobalStyles";
+import { signOut } from "@/features/sessionSlice";
+import { useAppDispatch } from "@/store";
 
 export default function Index() {
 	interface FormData {
@@ -13,6 +15,7 @@ export default function Index() {
 		questionsAmount: number
 	}
 
+	const dispatch = useAppDispatch();
 	const router = useRouter()
 	const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
 		defaultValues: {
@@ -74,6 +77,11 @@ export default function Index() {
 			onPress={handleSubmit(addInterview)}
 			style={[globalStyles.button, globalStyles.lightThemeButton]}
 		><Text style={{color: 'white'}}>Начать собеседование</Text></TouchableOpacity>
+
+		<TouchableOpacity
+			onPress={() => dispatch(signOut())}
+			style={[globalStyles.button, globalStyles.lightThemeButton]}
+		><Text style={{color: 'white'}}>Выйти</Text></TouchableOpacity>
 		</View>
 	);
 }

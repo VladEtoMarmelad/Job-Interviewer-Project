@@ -12,6 +12,13 @@ const styles = StyleSheet.create({
   
   dangerZone: {
     borderColor: 'red',
+    padding: 0
+  },
+
+  dangerZoneElement: {
+    padding: 15,
+    flexDirection: 'row', 
+    alignItems: 'center'
   },
 
   blurContainer: {

@@ -12,7 +12,6 @@ export class UsersService {
   ) {}
 
   findOneByName(username: string): any {
-    console.log("search username:", username)
     return this.usersRepository.findOneBy({ name: username });
   }
 
@@ -21,5 +20,13 @@ export class UsersService {
     const newUser = this.usersRepository.create(userData) 
     console.log("newUser:", newUser)
     return this.usersRepository.save(newUser) 
+  }
+
+  patch(userData: any): Promise<any> {
+    return this.usersRepository.update(userData.id, userData)
+  }
+
+  delete(id: number): Promise<any> {
+    return this.usersRepository.delete(id)
   }
 }

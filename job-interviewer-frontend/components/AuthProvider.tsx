@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { Platform } from 'react-native';
 import { decodeJWT } from '@/utils/decodeJWT';
 import { AppDispatch } from '@/store';
-import { setUser } from '@/features/sessionSlice';
+import { changeSessionState } from '@/features/sessionSlice';
 import { View } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
@@ -28,9 +28,10 @@ export const AuthProvider = ({children}: any) => {
   useEffect(() => {
     const loadUser = async () => {
       const token: string|null = await getItem("jwt");
-      console.log(token)
-      if (token) {
-        dispatch(setUser(decodeJWT(token)));
+      console.log(token === null)
+      if (token && token!==null) {
+        dispatch(changeSessionState({fieldName: "user", fieldValue: decodeJWT(token)}))
+        dispatch(changeSessionState({fieldName: "status", fieldValue: "authenticated"}))
       }
     };
     loadUser();

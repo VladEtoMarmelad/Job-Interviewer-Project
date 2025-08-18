@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, isAnyOf } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk, isAnyOf, PayloadAction } from '@reduxjs/toolkit'
 import { Platform } from 'react-native';
 import { decodeJWT } from '@/utils/decodeJWT';
 import * as SecureStore from 'expo-secure-store';
@@ -12,6 +12,11 @@ export interface SessionState {
 const initialState: SessionState = {
   user: null,
   status: "loading"
+}
+
+interface ChangeStatePayload {
+  fieldName: keyof SessionState; 
+  fieldValue: any;
 }
 
 export const register = createAsyncThunk("auth/register", async (userData: any) => {
@@ -54,6 +59,10 @@ export const sessionSlice = createSlice({
   reducers: {
     setUser: (state, action) => {
       state.user = action.payload
+    },
+    changeSessionState: (state, action: PayloadAction<ChangeStatePayload>) => {
+      const { fieldName, fieldValue } = action.payload
+      state[fieldName] = fieldValue
     }
   },
   extraReducers: (builder) => {
@@ -71,5 +80,5 @@ export const sessionSlice = createSlice({
   }
 })
 
-export const { setUser } = sessionSlice.actions
+export const { setUser, changeSessionState } = sessionSlice.actions
 export default sessionSlice.reducer

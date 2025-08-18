@@ -18,6 +18,10 @@ export class InterviewsService {
     return this.interviewsRepository.findOneBy({ id });
   }
 
+  findByUserId(userId: number): Promise<Interview[]> {
+    return this.interviewsRepository.findBy({ user: {id: userId} })
+  }
+
   async delete(id: number): Promise<void> {
     await this.interviewsRepository.delete(id);
   }

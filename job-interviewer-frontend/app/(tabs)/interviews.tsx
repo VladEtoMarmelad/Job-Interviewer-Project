@@ -1,23 +1,28 @@
 import { View, Text, FlatList } from "react-native";
 import { useState, useEffect } from "react";
 import { Link } from 'expo-router';
+import { useAppSelector } from "@/store";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import axios from "axios";
 
+
 const Interviews = () => {
+  const user = useAppSelector(state => state.sessions.user)
+  const sessionStatus = useAppSelector(state => state.sessions.status)
   const [interviews, setInterviews] = useState(null);
 
   useEffect(() => {
     const getInterviews = async () => {
-      const res = await axios.get(`http://${process.env.EXPO_PUBLIC_IP}:3000/interview/findAll`)
-      console.log(res)
+      const res = await axios.get(`http://${process.env.EXPO_PUBLIC_IP}:3000/interview/findByUserId`, {params: {userId: user.sub}})
       if (res.status===200) {
         setInterviews(res.data)
       }
     }
 
-    getInterviews()
-  }, [])
+    if (sessionStatus === "authenticated") {
+      getInterviews()
+    }
+  }, [sessionStatus])
 
   if (!interviews) return <Text>Загрузка...</Text>
 
