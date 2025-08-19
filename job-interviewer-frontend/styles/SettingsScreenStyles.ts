@@ -6,7 +6,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginTop: 15,
     padding: 15,
-    width: '75%',
+    width: Platform.OS === "web" ? '75%' : '90%', 
     alignSelf: 'center'
   },
   

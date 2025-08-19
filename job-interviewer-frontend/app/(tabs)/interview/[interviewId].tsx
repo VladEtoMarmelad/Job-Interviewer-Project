@@ -30,6 +30,7 @@ const InterviewChatScreen = () => {
       interviewId: interviewId,
       jobTitle: interview?.jobTitle,
       requiredKnowledge: interview?.requiredKnowledge,
+      aiModel: interview?.aiModel,
       prevQuestions: prevQuestions
     },
     onFinish: async (lastAIMessage) => {

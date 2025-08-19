@@ -16,7 +16,8 @@ const addQuestionFunction = async (interviewId: number|string): Promise<any> => 
 }
 
 export const addQuestion = createAsyncThunk("question/add", async (interviewId: number|string) => {
-  const addedQuestion: any = addQuestionFunction(interviewId)
+  const addedQuestion: any = await addQuestionFunction(interviewId)
+  console.log("addedQuestion:", addedQuestion)
   return addedQuestion.data
 })
 
@@ -106,6 +107,7 @@ export const questionSlice = createSlice({
     builder
     .addCase(addQuestion.fulfilled, (state, action) => {
       console.log(`state.lastQuestionId: ${state.lastQuestionId}`)
+      console.log("action.payload:", action.payload)
       if (state.lastQuestionId!==null) { //if added question wasn't first
         state.showContinueButton=true
       }

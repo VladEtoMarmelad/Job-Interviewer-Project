@@ -4,7 +4,7 @@ import { Link } from 'expo-router';
 import { useAppSelector } from "@/store";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import axios from "axios";
-
+import styles from "@/styles/InterviewsStyles";
 
 const Interviews = () => {
   const user = useAppSelector(state => state.sessions.user)
@@ -33,13 +33,13 @@ const Interviews = () => {
         keyExtractor={interview => interview.id}
         style={{marginTop: 15}}
         renderItem={({item: interview}) => 
-          <View style={{flexDirection: 'row', width: '80%', height: 75, backgroundColor: 'lightgray', alignSelf: 'center', borderRadius: 10, marginTop: 5}}>
+          <View style={styles.interviewElement}>
             <Link 
               href={{
                 pathname: "/interview/[interviewId]", 
                 params: {interviewId: interview.id}
               }}
-              style={{width: '100%', backgroundColor: 'lightgray', alignSelf: 'center', borderRadius: 10, marginTop: 5}}
+              style={styles.interviewElementLink}
             >
               <View style={{padding: 5}}>
                 <Text style={{fontWeight: 'bold', fontSize: 15}}>{interview.jobTitle}</Text>
@@ -47,7 +47,7 @@ const Interviews = () => {
               </View>
             </Link>
 
-            <View style={{height: '100%', borderLeftColor: 'black', borderLeftWidth: 1, justifyContent: 'center', padding: 10}}>
+            <View style={styles.interviewElementLinkSettings}>
               <Link 
                 href={{
                   pathname: "/interview/settings/[interviewId]",

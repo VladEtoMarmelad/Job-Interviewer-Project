@@ -1,18 +1,20 @@
 import { View, Text } from "react-native"
 import { Input } from "./Input"
+import { pickerItem } from "./Input";
 
 interface Props {
   name: string;
   placeholder: string;
   control: any;
   rules: any;
-  inputType?: "text" | "number" | "textarea";
+  inputType?: "text" | "number" | "textarea" | "select";
+  pickerItemsList?: pickerItem[];
   labelPostion?: "left"|"top";
 
   inputStyles?: any;
 }
 
-export const InputAndLabel: React.FC<Props> = ({name, placeholder, control, rules, inputType="text", labelPostion="left", inputStyles={}}) => {
+export const InputAndLabel: React.FC<Props> = ({name, placeholder, control, rules, inputType="text", pickerItemsList, labelPostion="left", inputStyles={}}) => {
   return (
     <View style={{flexDirection: labelPostion==="left" ? 'row' : 'column'}}>
       <Text style={{fontWeight: 'bold', fontSize: 18}}>{placeholder}</Text>
@@ -22,6 +24,7 @@ export const InputAndLabel: React.FC<Props> = ({name, placeholder, control, rule
         control={control}
         rules={rules}
         type={inputType}
+        pickerItemsList={pickerItemsList}
         styles={inputStyles}
       />
     </View>

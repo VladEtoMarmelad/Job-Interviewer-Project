@@ -16,6 +16,9 @@ export class Interview {
   @Column({ default: 10 })
   questionsAmount: number;
 
+  @Column({type: "varchar", length: 50, default: "gemini-2.0-flash"})
+  aiModel: string;
+
 
 
   @OneToMany(() => Question, (question) => question.interview)

@@ -76,7 +76,7 @@ export class InterviewsController {
 
     try {
       const result = streamText({
-        model: google("gemini-2.0-flash"),
+        model: google(interviewData.aiModel),
         messages: [
           {
             role: "system",

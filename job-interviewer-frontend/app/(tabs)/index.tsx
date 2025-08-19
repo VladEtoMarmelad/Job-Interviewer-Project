@@ -77,11 +77,6 @@ export default function Index() {
 			onPress={handleSubmit(addInterview)}
 			style={[globalStyles.button, globalStyles.lightThemeButton]}
 		><Text style={{color: 'white'}}>Начать собеседование</Text></TouchableOpacity>
-
-		<TouchableOpacity
-			onPress={() => dispatch(signOut())}
-			style={[globalStyles.button, globalStyles.lightThemeButton]}
-		><Text style={{color: 'white'}}>Выйти</Text></TouchableOpacity>
 		</View>
 	);
 }

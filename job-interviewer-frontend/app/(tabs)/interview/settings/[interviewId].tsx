@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Platform } from "react-native";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
@@ -9,6 +9,25 @@ import { InputAndLabel } from "@/components/InputAndLabel";
 import { BlurView } from 'expo-blur';
 import globalStyles from "@/styles/GlobalStyles"
 import settingsStyles from "@/styles/SettingsScreenStyles";
+
+const BonusInterviewParams = ({control}: any) => {
+  return (
+    <InputAndLabel 
+      name="aiModel"
+      inputType="select"
+      pickerItemsList={[
+        {label: "Gemini-2.5 Flash", value: "gemini-2.5-flash"},
+        {label: "Gemini-2 Flash", value: "gemini-2.0-flash"},
+        {label: "Gemini-2 Flash Lite", value: "gemini-2.0-flash-lite"},
+      ]}
+      placeholder="Название модели"
+      control={control}
+      rules={{required: true}}
+      labelPostion="top"
+      inputStyles={{width: '100%'}}
+    />
+  )
+}
 
 const InterviewSettingsScreen = () => {
 	const searchParams = useLocalSearchParams();
@@ -21,13 +40,15 @@ const InterviewSettingsScreen = () => {
 		jobTitle: string
 		requiredKnowledge: string
 		questionsAmount: number
+    aiModel: string
 	}
 
   const { control, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
     defaultValues: {
       jobTitle: "",
       requiredKnowledge: "",
-      questionsAmount: 30
+      questionsAmount: 30,
+      aiModel: ""
     }
   })
 
@@ -40,7 +61,8 @@ const InterviewSettingsScreen = () => {
       reset({
         jobTitle: interview.jobTitle,
         requiredKnowledge: interview.requiredKnowledge,
-        questionsAmount: interview.questionsAmount
+        questionsAmount: interview.questionsAmount,
+        aiModel: interview.aiModel
       })
     }
   }, [interview])
@@ -53,7 +75,7 @@ const InterviewSettingsScreen = () => {
   if (!interview) return <Text>Загрузка...</Text>
 
 	return (
-    <View style={{flex: 1}}>
+    <View style={{flex: 1, marginTop: 25}}>
       {showDeleteScreen &&
         <BlurView intensity={10} style={settingsStyles.blurContainer}>
           <View style={[settingsStyles.zone, settingsStyles.confirmZone, settingsStyles.lightThemeConfirmZone]}>
@@ -79,7 +101,7 @@ const InterviewSettingsScreen = () => {
       <ScrollView>
         <View style={settingsStyles.zone}>
           <View style={{flexDirection: 'row'}}>
-            <View style={{width: '49%'}}>
+            <View style={{width: Platform.OS === "web" ? '49%': '100%'}}>
               <InputAndLabel 
                 name="jobTitle"
                 placeholder="Название должности"
@@ -105,15 +127,18 @@ const InterviewSettingsScreen = () => {
                 labelPostion="top"
                 inputStyles={{width: '100%'}}
               />
-              
             </View>
 
-            {/* Vertical line between Views */}
-            <View style={{width: 1, height: '100%', marginHorizontal: 15, backgroundColor: '#d8d8d8'}}/> 
+            {Platform.OS === "web" &&
+              <View style={{flex: 1}}>
+                {/* Vertical line between Views */}
+                <View style={{width: 1, height: '100%', marginHorizontal: 15, backgroundColor: '#d8d8d8', position: 'absolute'}}/> 
 
-            <View style={{width: '49%'}}>
-
-            </View>
+                <View style={{width: '100%', marginLeft: 15, paddingHorizontal: 15}}>
+                  <BonusInterviewParams control={control}/>
+                </View>
+              </View>
+            }
           </View>
           <TouchableOpacity 
              onPress={handleSubmit(putInterviewHandler)}
@@ -123,9 +148,15 @@ const InterviewSettingsScreen = () => {
           </TouchableOpacity>
         </View>
 
+        {Platform.OS !== "web" &&
+          <View style={settingsStyles.zone}>
+            <BonusInterviewParams control={control}/>
+          </View>
+        }
+
         <View style={[settingsStyles.zone, settingsStyles.dangerZone]}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Text>Удалить интервью "{interview.jobTitle}"</Text>
+          <View style={settingsStyles.dangerZoneElement}>
+            <Text>Удалить интервью</Text>
             <TouchableOpacity 
               onPress={() => setShowDeleteScreen(true)}
               style={{borderWidth: 1, borderColor: 'red', borderRadius: 10, padding: 5, marginLeft: 'auto'}}
