@@ -8,13 +8,13 @@ interface Props {
   control: any;
   rules: any;
   inputType?: "text" | "number" | "textarea" | "select";
-  pickerItemsList?: pickerItem[];
   labelPostion?: "left"|"top";
-
   inputStyles?: any;
+
+  pickerItemsList?: pickerItem[]; //only for "select" type
 }
 
-export const InputAndLabel: React.FC<Props> = ({name, placeholder, control, rules, inputType="text", pickerItemsList, labelPostion="left", inputStyles={}}) => {
+export const InputAndLabel: React.FC<Props> = ({name, placeholder, control, rules, inputType="text", labelPostion="left", inputStyles={}, pickerItemsList}) => {
   return (
     <View style={{flexDirection: labelPostion==="left" ? 'row' : 'column'}}>
       <Text style={{fontWeight: 'bold', fontSize: 18}}>{placeholder}</Text>
@@ -24,8 +24,9 @@ export const InputAndLabel: React.FC<Props> = ({name, placeholder, control, rule
         control={control}
         rules={rules}
         type={inputType}
-        pickerItemsList={pickerItemsList}
         styles={inputStyles}
+
+        pickerItemsList={pickerItemsList}
       />
     </View>
   )

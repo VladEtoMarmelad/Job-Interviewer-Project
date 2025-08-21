@@ -39,7 +39,7 @@ export class AuthController {
   }
 
   @Delete("deleteJWTCookie")
-  deleteJWTCookie(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  deleteJWTCookie(@Res({ passthrough: true }) res: Response) {
     res.status(200).clearCookie("jwt", {
       httpOnly: true, 
       secure: false, 

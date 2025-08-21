@@ -1,32 +1,40 @@
-import { Text, View, TouchableOpacity, AppState } from "react-native";
+import { Text, View, TouchableOpacity, Platform } from "react-native";
 import { useForm } from "react-hook-form"
 import { Input }  from "@/components/Input";
 import { useRouter } from "expo-router";
+import { InterviewAIModelPicker } from "@/components/InterviewAIModelPicker";
+import { useAppSelector } from "@/store";
+import { getThemeStyle } from "@/utils/getThemeStyle";
 import axios from "axios"
 import globalStyles from "@/styles/GlobalStyles";
-import { signOut } from "@/features/sessionSlice";
-import { useAppDispatch } from "@/store";
 
 export default function Index() {
 	interface FormData {
 		jobTitle: string
 		requiredKnowledge: string
-
+		aiModel: string,
 		questionsAmount: number
-	}
 
-	const dispatch = useAppDispatch();
+		user?: number
+	}
+	
+	const user = useAppSelector(state => state.sessions.user)
+	const colorScheme = useAppSelector(state => state.sessions.colorScheme)
+	const sessionStatus = useAppSelector(state => state.sessions.status)
 	const router = useRouter()
 	const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
 		defaultValues: {
 			jobTitle: "",
 			requiredKnowledge: "",
-
-			questionsAmount: 30
+			aiModel: "",
+			questionsAmount: 30,
 		},
 	})
 
 	const addInterview = async (data: FormData): Promise<void> => {
+		if (sessionStatus==="authenticated") {
+			data.user=user.sub
+		}
 		console.log(data)
 		const res = await axios.post(`http://${process.env.EXPO_PUBLIC_IP}:3000/interview/add`, data)
 		console.log(res)
@@ -38,15 +46,11 @@ export default function Index() {
 		}
 	}
 
+	const themeBackgroundStyle = getThemeStyle(colorScheme, globalStyles, "Background")
+	const themeButtonStyle = getThemeStyle(colorScheme, globalStyles, "Button")
+
 	return (
-		<View
-			style={{
-				flex: 1,
-				justifyContent: "center",
-				alignItems: "center",
-				backgroundColor: '#f2f2f2'
-			}}
-		>
+		<View style={[globalStyles.background, themeBackgroundStyle, {justifyContent: "center",alignItems: "center"}]}>
 
 		<Input 
 			name="jobTitle"
@@ -54,7 +58,7 @@ export default function Index() {
 			control={control}
 			rules={{required: true}}
 		/>
-      	{errors.jobTitle && <Text>This is required.</Text>}
+    {errors.jobTitle && <Text>This is required.</Text>}
 
 		<Input 
 			name="requiredKnowledge"
@@ -73,9 +77,14 @@ export default function Index() {
 			type="number"
 		/>
 
+		<InterviewAIModelPicker 
+			control={control}
+			styles={{width: Platform.OS === "web" ? '25%' : '75%'}}
+		/>
+
 		<TouchableOpacity
 			onPress={handleSubmit(addInterview)}
-			style={[globalStyles.button, globalStyles.lightThemeButton]}
+			style={[globalStyles.button, themeButtonStyle]}
 		><Text style={{color: 'white'}}>Начать собеседование</Text></TouchableOpacity>
 		</View>
 	);

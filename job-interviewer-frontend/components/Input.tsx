@@ -1,11 +1,14 @@
 import { Controller } from "react-hook-form"
 import { TextInput, Platform, Text } from "react-native"
 import { Picker } from "@react-native-picker/picker"
+import { useAppSelector } from "@/store";
+import { getThemeStyle } from "@/utils/getThemeStyle";
 import globalStyles from "@/styles/GlobalStyles"
+
 
 export interface pickerItem {
 	label: string;
-	value: string;
+	value: string|null;
 }
 
 interface Props {
@@ -14,13 +17,17 @@ interface Props {
   control: any
   rules: any
   type?: "text" | "number" | "textarea" | "select"
-	pickerItemsList?: pickerItem[]
 	styles?: any
+
+	pickerItemsList?: pickerItem[]; //only for "select" type
 }
 
 const textTypes = ["text", "number", "textarea"]
 
-export const Input: React.FC<Props> = ({name, placeholder, control, rules, type="text", pickerItemsList, styles={}}) => {
+export const Input: React.FC<Props> = ({name, placeholder, control, rules, type="text", styles={}, pickerItemsList}) => {
+	const colorScheme = useAppSelector(state => state.sessions.colorScheme)
+	const themeInputStyle = getThemeStyle(colorScheme, globalStyles, "Input")
+	const placeholderTextColor = colorScheme === "light" ? 'black' : 'white'
   return (
     <Controller
 			name={name}
@@ -33,7 +40,8 @@ export const Input: React.FC<Props> = ({name, placeholder, control, rules, type=
 						onBlur={onBlur}
 						onChangeText={onChange}
 						value={value}
-						style={[globalStyles.input, globalStyles.lightThemeInput, styles]}
+						style={[globalStyles.input, themeInputStyle, styles]}
+						placeholderTextColor={placeholderTextColor}
 						keyboardType={type==="number" ? "number-pad" : "default"}
 						multiline={type==="textarea" ? true : false}
 						numberOfLines={type==="textarea" ? 3 : 1}
@@ -44,7 +52,7 @@ export const Input: React.FC<Props> = ({name, placeholder, control, rules, type=
         		mode="dropdown"
         		style={[
 							globalStyles.input, 
-							Platform.OS === "web" && globalStyles.lightThemeInput,
+							Platform.OS === "web" && themeInputStyle,
 							{width: '100%', borderWidth: 0},
 							styles
         		]}

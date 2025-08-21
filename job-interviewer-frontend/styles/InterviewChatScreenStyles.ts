@@ -27,6 +27,22 @@ const styles = StyleSheet.create({
   },
   darkThemeAssistantMessage: {
 
+  },
+
+  chatSection: {
+    height: '100%', 
+    flexDirection: 'column', 
+    width: '85%', 
+    padding: 5
+  },
+  chat: {
+    width: '100%', 
+    flexDirection: Platform.OS === "web" ? 'row': 'column',
+    position: 'absolute', 
+    top: '50%', 
+    left: '50%', 
+    transform: 'translate(-50%, -50%)', 
+    zIndex: 5
   }
 })
 

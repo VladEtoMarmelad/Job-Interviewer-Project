@@ -7,27 +7,9 @@ import { getInterviewById, deleteInterview, putInterview } from "@/features/inte
 import { useForm } from "react-hook-form";
 import { InputAndLabel } from "@/components/InputAndLabel";
 import { BlurView } from 'expo-blur';
+import { InterviewAIModelPicker } from "@/components/InterviewAIModelPicker";
 import globalStyles from "@/styles/GlobalStyles"
 import settingsStyles from "@/styles/SettingsScreenStyles";
-
-const BonusInterviewParams = ({control}: any) => {
-  return (
-    <InputAndLabel 
-      name="aiModel"
-      inputType="select"
-      pickerItemsList={[
-        {label: "Gemini-2.5 Flash", value: "gemini-2.5-flash"},
-        {label: "Gemini-2 Flash", value: "gemini-2.0-flash"},
-        {label: "Gemini-2 Flash Lite", value: "gemini-2.0-flash-lite"},
-      ]}
-      placeholder="Название модели"
-      control={control}
-      rules={{required: true}}
-      labelPostion="top"
-      inputStyles={{width: '100%'}}
-    />
-  )
-}
 
 const InterviewSettingsScreen = () => {
 	const searchParams = useLocalSearchParams();
@@ -127,6 +109,15 @@ const InterviewSettingsScreen = () => {
                 labelPostion="top"
                 inputStyles={{width: '100%'}}
               />
+              {Platform.OS !== "web" && 
+                <View>
+                  {/* Horizontal line */}
+                  <View style={{height: 1, width: '100%', margin: 15, backgroundColor: '#d8d8d8', alignSelf: 'center'}}/>
+
+                  <InterviewAIModelPicker control={control} label/>
+                  <Text style={{padding: 5, fontSize: 18, fontWeight: 600}}>Используемая модель: {interview.aiModel}</Text>
+                </View>
+              }
             </View>
 
             {Platform.OS === "web" &&
@@ -135,7 +126,12 @@ const InterviewSettingsScreen = () => {
                 <View style={{width: 1, height: '100%', marginHorizontal: 15, backgroundColor: '#d8d8d8', position: 'absolute'}}/> 
 
                 <View style={{width: '100%', marginLeft: 15, paddingHorizontal: 15}}>
-                  <BonusInterviewParams control={control}/>
+                  <InterviewAIModelPicker 
+                    control={control} 
+                    label 
+                    styles={{width: '100%'}}
+                  />
+                  <Text style={{padding: 5, fontSize: 18, fontWeight: 600}}>Используемая модель: {interview.aiModel}</Text>
                 </View>
               </View>
             }
@@ -147,12 +143,6 @@ const InterviewSettingsScreen = () => {
             <Text style={{color: 'white'}}>Сохранить изменения</Text>
           </TouchableOpacity>
         </View>
-
-        {Platform.OS !== "web" &&
-          <View style={settingsStyles.zone}>
-            <BonusInterviewParams control={control}/>
-          </View>
-        }
 
         <View style={[settingsStyles.zone, settingsStyles.dangerZone]}>
           <View style={settingsStyles.dangerZoneElement}>

@@ -19,7 +19,7 @@ export class AuthService {
   async register(userData: UserData): Promise<string> {
     const newUser = await this.usersService.add(userData)
     const { password, ...result } = newUser;
-    const payload = { sub: result.id, name: result.name };
+    const payload = { sub: result.id, name: result.name, colorTheme: "system" };
     const token = await this.jwtService.signAsync(payload)
     return token;
   }
@@ -30,7 +30,7 @@ export class AuthService {
       console.log("got this user:", JSON.stringify(user, null, 4))
       if (await verify(user.password, inputedPassword)) {
         const { password, ...result } = user;
-        const payload = { sub: result.id, name: result.name };
+        const payload = { sub: result.id, name: result.name, colorTheme: "system" };
         const token = await this.jwtService.signAsync(payload);
         return token;
       } else {

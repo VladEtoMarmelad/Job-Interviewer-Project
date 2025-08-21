@@ -6,12 +6,16 @@ import axios from 'axios';
 
 export interface SessionState {
   user: any;
-  status: "authenticated"|"unauthenticated"|"loading"
+  status: "authenticated"|"unauthenticated"|"loading";
+
+  colorScheme: "light"|"dark"
 }
 
 const initialState: SessionState = {
   user: null,
-  status: "loading"
+  status: "loading",
+
+  colorScheme: "light"
 }
 
 interface ChangeStatePayload {

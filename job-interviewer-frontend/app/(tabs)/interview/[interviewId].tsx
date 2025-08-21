@@ -1,11 +1,12 @@
-import { View, Text, FlatList, TextInput, TouchableOpacity } from "react-native"
+import { View, Text, FlatList, TextInput, TouchableOpacity, Platform } from "react-native"
 import { useChat } from '@ai-sdk/react'
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useLocalSearchParams } from 'expo-router';
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { addQuestion, patchLastQuestion, getPrevQuestions, changeInitialState } from "@/features/questionSlice";
 import { fetch as expoFetch } from 'expo/fetch';
+import { concatQuestions } from "@/utils/concatQuestions";
 import Slider from '@react-native-community/slider';
 import globalStyles from "@/styles/GlobalStyles";
 import styles from '@/styles/InterviewChatScreenStyles';
@@ -31,7 +32,7 @@ const InterviewChatScreen = () => {
       jobTitle: interview?.jobTitle,
       requiredKnowledge: interview?.requiredKnowledge,
       aiModel: interview?.aiModel,
-      prevQuestions: prevQuestions
+      prevQuestions: prevQuestions,
     },
     onFinish: async (lastAIMessage) => {
       console.log("lastAIMessage.content:", lastAIMessage.content)
@@ -111,11 +112,13 @@ const InterviewChatScreen = () => {
   }
 
   const handleSubmitWrapper = (): void => {
-  const mockEvent = {
-    preventDefault: () => {},
+    const mockEvent = {
+      preventDefault: () => {},
+    };
+    handleSubmit(mockEvent);
   };
-  handleSubmit(mockEvent);
-};
+
+  const questionsList = useMemo(() => concatQuestions(prevQuestions, messages), [prevQuestions, messages])
 
   if (!interview || !prevQuestions) return <Text>Загрузка...</Text>;
   if (prevQuestions.length===0 && messages.length===0) return (
@@ -143,22 +146,8 @@ const InterviewChatScreen = () => {
         flexDirection: 'row'
 			}}
     >
-    <View style={{height: '100%', flexDirection: 'column', width: '85%', padding: 5}}>
-      <FlatList 
-        data={prevQuestions}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={question => question.id}
-        style={{maxHeight: '45%'}}
-        renderItem={({item: question}) => 
-          <View>
-            {question.aiQuestion !== "" && <View style={[styles.message, styles.assistantMessage, styles.lightThemeAssistantMessage]}><Text>{question.aiQuestion}</Text></View>}
-            {question.userAnswer !== "" && <View style={[styles.message, styles.userMessage, styles.lightThemeUserMessage]}><Text>{question.userAnswer}</Text></View>}
-            {question.aiSummary !== "" && <View style={[styles.message, styles.assistantMessage, styles.lightThemeAssistantMessage]}><Text>{question.aiSummary}</Text></View>}
-          </View>
-        }
-      />
-
-      <View style={{flexDirection: 'row'}}>
+    <View style={styles.chatSection}>
+      <View style={styles.chat}>
         {showContinueButton &&
           <TouchableOpacity
             onPress={continueInterviewHanler}
@@ -205,12 +194,20 @@ const InterviewChatScreen = () => {
               }))
             }
           }}
-          style={[globalStyles.button, globalStyles.lightThemeButton, {marginLeft: 25, height: 50, alignSelf: 'flex-end'}]}
+          style={[
+            globalStyles.button, 
+            globalStyles.lightThemeButton, 
+            {
+              marginLeft: 25, 
+              height: 50, 
+              alignSelf: Platform.OS === "web" ? 'flex-end' : 'center'
+            }
+          ]}
         ><Text style={{color: 'white'}}>Отправить ответ</Text></TouchableOpacity>
       </View>
 
       <FlatList 
-        data={messages} 
+        data={questionsList} 
         style={{flex: 1}}
         showsVerticalScrollIndicator={false}
         renderItem={({item: message, index}) => 

@@ -1,6 +1,23 @@
 import { StyleSheet, Platform } from "react-native";
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1
+  },
+  lightThemeBackground: {
+    backgroundColor: '#f2f2f2'
+  },
+  darkThemeBackground: {
+    backgroundColor: '#121212'
+  },
+
+  lightThemeText: {
+    color: 'black'
+  },
+  darkThemeText: {
+    color: 'white'
+  },
+
   input: {
     width: Platform.OS === "web" ? '25%' : '75%',
     padding: 15,
@@ -8,7 +25,12 @@ const styles = StyleSheet.create({
     marginTop: 10
   },
   lightThemeInput: {
+    color: 'black',
     backgroundColor: '#fef9f3'
+  },
+  darkThemeInput: {
+    color: 'white',
+    backgroundColor: '#212427'
   },
 
   button: {
@@ -20,7 +42,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
   },
   darkThemeButton: {
-
+    backgroundColor: '#212427'
   },
 
   validationErrorsSection: {

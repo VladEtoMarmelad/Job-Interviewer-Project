@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { Platform } from 'react-native';
+import { Platform, useColorScheme } from 'react-native';
 import { decodeJWT } from '@/utils/decodeJWT';
 import { AppDispatch } from '@/store';
 import { changeSessionState } from '@/features/sessionSlice';
@@ -24,6 +24,16 @@ export const getItem = async (key: string): Promise<string|null> => {
 
 export const AuthProvider = ({children}: any) => {
   const dispatch = useDispatch<AppDispatch>();
+  const systemColorScheme = useColorScheme();
+
+  const getColorScheme = (token: string) => {
+    const JWTColorTheme = decodeJWT(token).colorTheme
+    if (JWTColorTheme === "system") {
+      return systemColorScheme
+    } else {
+      return JWTColorTheme
+    }
+  }
 
   useEffect(() => {
     const loadUser = async () => {
@@ -31,6 +41,7 @@ export const AuthProvider = ({children}: any) => {
       console.log(token === null)
       if (token && token!==null) {
         dispatch(changeSessionState({fieldName: "user", fieldValue: decodeJWT(token)}))
+        dispatch(changeSessionState({fieldName: "colorScheme", fieldValue: getColorScheme(token)}))
         dispatch(changeSessionState({fieldName: "status", fieldValue: "authenticated"}))
       }
     };
