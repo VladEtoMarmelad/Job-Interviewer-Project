@@ -4,18 +4,19 @@ import { useState, useEffect } from "react";
 import { InputAndLabel } from "@/components/InputAndLabel";
 import { useForm } from "react-hook-form";
 import { Redirect, useRouter } from "expo-router";
-import { signOut } from "@/features/sessionSlice";
+import { signOut, changeJWT } from "@/features/sessionSlice";
 import { BlurView } from "expo-blur";
+import { getThemeStyle } from "@/utils/getThemeStyle";
 import settingsStyles from "@/styles/SettingsScreenStyles";
 import globalStyles from "@/styles/GlobalStyles";
 import axios from "axios";
-
 
 const ProfileScreen = () => {
   const [showDeleteScreen, setShowDeleteScreen] = useState(false);
   const router = useRouter();
 
   const user = useAppSelector(state => state.sessions.user)
+  const colorScheme = useAppSelector(state => state.sessions.colorScheme)
   const sessionStatus = useAppSelector(state => state.sessions.status)
   const dispatch = useAppDispatch();
   
@@ -51,15 +52,21 @@ const ProfileScreen = () => {
     router.replace("/")
   }
 
+  const themeBackgroundStyle = getThemeStyle(colorScheme, globalStyles, "Background")
+  const themeButtonStyle = getThemeStyle(colorScheme, globalStyles, "Button")
+  const themeTextStyle = getThemeStyle(colorScheme, globalStyles, "Text")
+  const themeZoneStyle = getThemeStyle(colorScheme, settingsStyles, "Zone")
+  const themeConfirmZoneStyle = getThemeStyle(colorScheme, settingsStyles, "ConfirmZone")
+
   if (sessionStatus==="loading") return <Text>Загрузка...</Text>
   if (sessionStatus==="unauthenticated") return <Redirect href="/signin" />
 
   return (
-    <View>
+    <View style={[globalStyles.background, themeBackgroundStyle]}>
       {showDeleteScreen &&
         <BlurView intensity={10} style={settingsStyles.blurContainer}>
-          <View style={[settingsStyles.zone, settingsStyles.confirmZone, settingsStyles.lightThemeConfirmZone]}>
-            <Text style={{alignSelf: 'center'}}>Вы уверены, что хотите удалить свой аккаунт?</Text>
+          <View style={[settingsStyles.zone, settingsStyles.confirmZone, themeConfirmZoneStyle]}>
+            <Text style={[themeTextStyle, {alignSelf: 'center'}]}>Вы уверены, что хотите удалить свой аккаунт?</Text>
             <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
               <TouchableOpacity 
                 onPress={deleteUserHandler}
@@ -70,7 +77,7 @@ const ProfileScreen = () => {
 
               <TouchableOpacity 
                 onPress={() => setShowDeleteScreen(false)}
-                style={[globalStyles.button, globalStyles.lightThemeButton]}
+                style={[globalStyles.button, themeButtonStyle]}
               >
                 <Text style={{color: 'white'}}>Назад</Text>
               </TouchableOpacity>
@@ -79,7 +86,7 @@ const ProfileScreen = () => {
         </BlurView>
       }
       <ScrollView>
-        <View style={settingsStyles.zone}>
+        <View style={[settingsStyles.zone, themeZoneStyle]}>
           <InputAndLabel 
             name="name"
             placeholder="Имя пользователя"
@@ -90,29 +97,50 @@ const ProfileScreen = () => {
           />
           <TouchableOpacity 
             onPress={handleSubmit(patchUserHanlder)}
-            style={[globalStyles.button, globalStyles.lightThemeButton, {alignSelf: 'center'}]}
+            style={[globalStyles.button, themeButtonStyle, {alignSelf: 'center'}]}
           >
             <Text style={{color: 'white'}}>Сохранить изменения</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={settingsStyles.zone}></View>
+        <View style={[settingsStyles.zone, themeZoneStyle]}>
+          <TouchableOpacity 
+              onPress={() => dispatch(changeJWT({
+                sub: user.sub,
+                name: user.name,
+                colorScheme: "light"
+              }))}
+              style={{borderWidth: 1, borderColor: 'black', borderRadius: 10, padding: 5}}
+            >
+              <Text style={themeTextStyle}>Сменить цветовую тему на светлую</Text>
+            </TouchableOpacity>
+          <TouchableOpacity 
+              onPress={() => dispatch(changeJWT({
+                sub: user.sub,
+                name: user.name,
+                colorScheme: "dark"
+              }))}
+              style={{borderWidth: 1, borderColor: 'black', borderRadius: 10, padding: 5}}
+            >
+              <Text style={themeTextStyle}>Сменить цветовую тему на тёмную</Text>
+            </TouchableOpacity>
+        </View>
 
         <View style={[settingsStyles.zone, settingsStyles.dangerZone]}>
           <View style={settingsStyles.dangerZoneElement}>
-            <Text>Выйти из аккаунта</Text>
+            <Text style={themeTextStyle}>Выйти из аккаунта</Text>
             <TouchableOpacity 
               onPress={() => dispatch(signOut())}
               style={{borderWidth: 1, borderColor: 'black', borderRadius: 10, padding: 5, marginLeft: 'auto'}}
             >
-              <Text style={{color: 'black'}}>Выйти из аккаунта</Text>
+              <Text style={themeTextStyle}>Выйти из аккаунта</Text>
             </TouchableOpacity>
           </View>
 
-          <View style={{width: '100%', height: 1, marginHorizontal: 15, backgroundColor: '#d8d8d8', alignSelf: 'center'}}/> 
+          <View style={{width: '100%', height: 1, marginHorizontal: 15, backgroundColor: colorScheme === "light" ? '#d8d8d8': 'gray', alignSelf: 'center'}}/> 
 
           <View style={settingsStyles.dangerZoneElement}>
-            <Text>Удалить аккаунт</Text>
+            <Text style={themeTextStyle}>Удалить аккаунт</Text>
             <TouchableOpacity 
               onPress={() => setShowDeleteScreen(true)}
               style={{borderWidth: 1, borderColor: 'red', borderRadius: 10, padding: 5, marginLeft: 'auto'}}

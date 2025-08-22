@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e7decc'
   },
   darkThemeUserMessage: {
-
+    backgroundColor: '#151922'
   },
 
   assistantMessage: {
@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#faf5ef'
   },
   darkThemeAssistantMessage: {
-
+    backgroundColor: '#27292b'
   },
 
   chatSection: {
@@ -43,6 +43,20 @@ const styles = StyleSheet.create({
     left: '50%', 
     transform: 'translate(-50%, -50%)', 
     zIndex: 5
+  },
+
+  chatSettingSection: {
+    height: '100%', 
+    width: '15%', 
+    borderLeftWidth: 1
+  },
+  lightThemeChatSettingSection: {
+    backgroundColor: 'white', 
+    borderColor: '#d8d8d8'
+  },
+  darkThemeChatSettingSection: {
+    backgroundColor: 'black',
+    borderColor: 'gray'
   }
 })
 

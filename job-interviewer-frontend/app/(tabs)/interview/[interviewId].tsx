@@ -2,11 +2,11 @@ import { View, Text, FlatList, TextInput, TouchableOpacity, Platform } from "rea
 import { useChat } from '@ai-sdk/react'
 import { useEffect, useState, useRef, useMemo } from "react";
 import { useLocalSearchParams } from 'expo-router';
-import { useSelector, useDispatch } from "react-redux";
-import { AppDispatch, RootState } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { addQuestion, patchLastQuestion, getPrevQuestions, changeInitialState } from "@/features/questionSlice";
 import { fetch as expoFetch } from 'expo/fetch';
 import { concatQuestions } from "@/utils/concatQuestions";
+import { getThemeStyle } from "@/utils/getThemeStyle";
 import Slider from '@react-native-community/slider';
 import globalStyles from "@/styles/GlobalStyles";
 import styles from '@/styles/InterviewChatScreenStyles';
@@ -19,9 +19,10 @@ const InterviewChatScreen = () => {
   const [chatHeight, setChatHeight] = useState<number>(100)
   let startInterview = useRef<boolean>(false)  
 
-  const prevQuestions: any = useSelector<RootState>(state => state.questions.prevQuestions)
-  const showContinueButton: any = useSelector<RootState>(state => state.questions.showContinueButton)
-  const dispatch = useDispatch<AppDispatch>();
+  const prevQuestions: any = useAppSelector(state => state.questions.prevQuestions)
+  const showContinueButton: any = useAppSelector(state => state.questions.showContinueButton)
+  const colorScheme = useAppSelector(state => state.sessions.colorScheme)
+  const dispatch = useAppDispatch();
 
   const { messages, input, setInput, handleInputChange, handleSubmit } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
@@ -120,6 +121,14 @@ const InterviewChatScreen = () => {
 
   const questionsList = useMemo(() => concatQuestions(prevQuestions, messages), [prevQuestions, messages])
 
+  const themeBackgroundStyle = getThemeStyle(colorScheme, globalStyles, "Background")
+  const themeUserMessageStyle = getThemeStyle(colorScheme, styles, "UserMessage")
+  const themeAssistantMessageStyle = getThemeStyle(colorScheme, styles, "AssistantMessage")
+  const themeButtonStyle = getThemeStyle(colorScheme, globalStyles, "Button")
+  const themeInputStyle = getThemeStyle(colorScheme, globalStyles, "Input")
+  const themeChatSettingSectionStyle = getThemeStyle(colorScheme, styles, "ChatSettingSection")
+  const themeTextStyle = getThemeStyle(colorScheme, globalStyles, "Text")
+
   if (!interview || !prevQuestions) return <Text>Загрузка...</Text>;
   if (prevQuestions.length===0 && messages.length===0) return (
     <View style={{
@@ -137,15 +146,7 @@ const InterviewChatScreen = () => {
   )
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: '#f2f2f2',
-        flexDirection: 'row'
-			}}
-    >
+    <View style={[globalStyles.background, themeBackgroundStyle, {justifyContent: "center",alignItems: "center",flexDirection: 'row'}]}>
     <View style={styles.chatSection}>
       <View style={styles.chat}>
         {showContinueButton &&
@@ -182,7 +183,7 @@ const InterviewChatScreen = () => {
           }
           autoFocus={true}
           multiline
-          style={[globalStyles.input, globalStyles.lightThemeInput, {width: '100%', height: chatHeight}]}
+          style={[globalStyles.input, themeInputStyle, {width: '100%', height: chatHeight}]}
         />
 
         <TouchableOpacity
@@ -196,7 +197,7 @@ const InterviewChatScreen = () => {
           }}
           style={[
             globalStyles.button, 
-            globalStyles.lightThemeButton, 
+            themeButtonStyle, 
             {
               marginLeft: 25, 
               height: 50, 
@@ -215,19 +216,19 @@ const InterviewChatScreen = () => {
             key={index}
             style={[
               styles.message, 
-              message.role==="user" ? styles.userMessage: styles.assistantMessage,
-              message.role==="user" ? styles.lightThemeUserMessage: styles.lightThemeAssistantMessage
+              message.role==="user" ? styles.userMessage : styles.assistantMessage,
+              message.role==="user" ? themeUserMessageStyle : themeAssistantMessageStyle
             ]}
           >
-            <Text>{message.content}</Text>
+            <Text style={themeTextStyle}>{message.content}</Text>
           </View>
         }
       />
     </View>
 
-    <View style={{height: '100%', width: '15%', backgroundColor: 'white', borderLeftWidth: 1, borderColor: '#d8d8d8'}}>
-      <Text style={{alignSelf: 'center', fontSize: 14, fontWeight: 'bold'}}>Размер текстового окна:</Text>
-      <Text>Interview jobTitle: {interview.jobTitle}</Text>
+    <View style={[styles.chatSettingSection, themeChatSettingSectionStyle]}>
+      <Text style={[themeTextStyle, {alignSelf: 'center', fontSize: 14, fontWeight: 'bold'}]}>Размер текстового окна:</Text>
+      <Text style={themeTextStyle}>Interview jobTitle: {interview.jobTitle}</Text>
       <Slider 
         style={{width: '90%', height: 40, alignSelf: 'center'}}
         value={chatHeight}
@@ -235,9 +236,9 @@ const InterviewChatScreen = () => {
         step={10}
         minimumValue={100}
         maximumValue={750}
-        minimumTrackTintColor="black"
-        maximumTrackTintColor="gray"
-        thumbTintColor="blue"
+        minimumTrackTintColor={colorScheme === "light" ? 'black' : 'white'}
+        maximumTrackTintColor={colorScheme === "light" ? 'gray' : '#27292b'}
+        thumbTintColor={colorScheme === "light" ? 'blue' : 'goldenrod'}
       />
     </View>
   </View>

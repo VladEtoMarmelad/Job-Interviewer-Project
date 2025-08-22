@@ -1,7 +1,7 @@
 interface DecodedPayload {
   sub: number;
   name: string;
-  colorTheme: "light"|"dark"|"system";
+  colorScheme: "light"|"dark"|"system";
 } 
 
 export const decodeJWT = (JWT: string): DecodedPayload => {

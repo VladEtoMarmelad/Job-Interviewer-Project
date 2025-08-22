@@ -9,6 +9,12 @@ const styles = StyleSheet.create({
     width: Platform.OS === "web" ? '75%' : '90%', 
     alignSelf: 'center'
   },
+  lightThemeZone: {
+    borderColor: 'black',
+  },
+  darkThemeZone: {
+    borderColor: 'gray',
+  },
   
   dangerZone: {
     borderColor: 'red',
@@ -42,6 +48,9 @@ const styles = StyleSheet.create({
   },
   lightThemeConfirmZone: {
     backgroundColor: 'white'
+  },
+  darkThemeConfirmZone: {
+    backgroundColor: 'black'
   }
 })
 

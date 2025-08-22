@@ -46,4 +46,16 @@ export class AuthController {
       path: "/"
     });
   }
+
+  @Post("changeJWT")
+  async changeJWT(@Body() JWTData: any, @Res({ passthrough: true }) res: Response) {
+    const jwt = await this.authService.changeJWT(JWTData)
+    res.status(200).cookie("jwt", jwt, {
+      httpOnly: true, 
+      secure: false, 
+      path: "/",
+      maxAge: 3600000000000000,
+    });
+    return jwt;
+  }
 }

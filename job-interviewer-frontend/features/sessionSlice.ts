@@ -15,7 +15,7 @@ const initialState: SessionState = {
   user: null,
   status: "loading",
 
-  colorScheme: "light"
+  colorScheme: "dark"
 }
 
 interface ChangeStatePayload {
@@ -57,13 +57,19 @@ export const signOut = createAsyncThunk("auth/signOut", async () => {
   return;
 })
 
+export const changeJWT = createAsyncThunk("auth/changeJWT", async (JWTPayload: any): Promise<string> => {
+  const jwt = await axios.post(`http://${process.env.EXPO_PUBLIC_IP}:3000/auth/changeJWT`, JWTPayload, {withCredentials: true})
+  if (Platform.OS !== "web") {
+    await SecureStore.setItemAsync("jwt", jwt.data); //using secure storage insead of http only cookies if platform !== "web"
+  }
+  console.log("JWT DATA:", decodeJWT(jwt.data))
+  return jwt.data;
+})
+
 export const sessionSlice = createSlice({
   name: "session",
   initialState,
   reducers: {
-    setUser: (state, action) => {
-      state.user = action.payload
-    },
     changeSessionState: (state, action: PayloadAction<ChangeStatePayload>) => {
       const { fieldName, fieldValue } = action.payload
       state[fieldName] = fieldValue
@@ -77,12 +83,12 @@ export const sessionSlice = createSlice({
       state.status="unauthenticated"
     })
 
-    .addMatcher(isAnyOf(register.fulfilled, signIn.fulfilled), (state, action) => {
+    .addMatcher(isAnyOf(register.fulfilled, signIn.fulfilled, changeJWT.fulfilled), (state, action) => {
       state.user=decodeJWT(action.payload)
       state.status="authenticated"
     })
   }
 })
 
-export const { setUser, changeSessionState } = sessionSlice.actions
+export const { changeSessionState } = sessionSlice.actions
 export default sessionSlice.reducer

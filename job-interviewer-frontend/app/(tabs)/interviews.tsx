@@ -2,12 +2,15 @@ import { View, Text, FlatList } from "react-native";
 import { useState, useEffect } from "react";
 import { Link } from 'expo-router';
 import { useAppSelector } from "@/store";
+import { getThemeStyle } from "@/utils/getThemeStyle";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import axios from "axios";
+import globalStyles from "@/styles/GlobalStyles";
 import styles from "@/styles/InterviewsStyles";
 
 const Interviews = () => {
   const user = useAppSelector(state => state.sessions.user)
+  const colorScheme = useAppSelector(state => state.sessions.colorScheme)
   const sessionStatus = useAppSelector(state => state.sessions.status)
   const [interviews, setInterviews] = useState(null);
 
@@ -24,10 +27,12 @@ const Interviews = () => {
     }
   }, [sessionStatus])
 
+  const themeBackgroundStyle = getThemeStyle(colorScheme, globalStyles, "Background") 
+
   if (!interviews) return <Text>Загрузка...</Text>
 
   return (
-    <View>
+    <View style={[globalStyles.background, themeBackgroundStyle]}>
       <FlatList 
         data={interviews}
         keyExtractor={interview => interview.id}

@@ -5,7 +5,6 @@ import { useAppSelector } from "@/store";
 import { getThemeStyle } from "@/utils/getThemeStyle";
 import globalStyles from "@/styles/GlobalStyles"
 
-
 export interface pickerItem {
 	label: string;
 	value: string|null;
@@ -53,7 +52,7 @@ export const Input: React.FC<Props> = ({name, placeholder, control, rules, type=
         		style={[
 							globalStyles.input, 
 							Platform.OS === "web" && themeInputStyle,
-							{width: '100%', borderWidth: 0},
+							{width: '100%', borderWidth: 0, color: placeholderTextColor},
 							styles
         		]}
 						onBlur={onBlur}
