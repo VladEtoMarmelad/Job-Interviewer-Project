@@ -62,7 +62,6 @@ export const changeJWT = createAsyncThunk("auth/changeJWT", async (JWTPayload: a
   if (Platform.OS !== "web") {
     await SecureStore.setItemAsync("jwt", jwt.data); //using secure storage insead of http only cookies if platform !== "web"
   }
-  console.log("JWT DATA:", decodeJWT(jwt.data))
   return jwt.data;
 })
 

@@ -3,7 +3,7 @@ import { StyleSheet, Platform } from "react-native";
 const styles = StyleSheet.create({
   interviewElement: {
     width: '80%', 
-    height: 75, 
+    minHeight: 75, 
     flexDirection: 'row', 
     backgroundColor: 'lightgray', 
     alignSelf: 'center', 

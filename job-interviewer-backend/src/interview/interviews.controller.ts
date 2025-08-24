@@ -23,9 +23,17 @@ export class InterviewsController {
     return this.interviewsService.findByUserId(userId)
   }
 
-  @Get("getFromURL")
-  getVacancyFromURL(@Query("vacancyURL") vacancyURL: string): Promise<string> {
-    return this.interviewsService.getVacancyFromURL(vacancyURL);
+  @Post("addByURL")
+  async addByURL(@Body() interviewData: any): Promise<any> {
+    const requiredKnowledge = await this.interviewsService.addByURL(interviewData.vacancyURL);
+    return this.interviewsService.add({
+      jobTitle: "URL Interview",
+      requiredKnowledge: requiredKnowledge,
+      questionsAmount: 30,
+      aiModel: "gemini-2.5-flash",
+
+      user: interviewData.user
+    })
   }
 
   @Post("add")

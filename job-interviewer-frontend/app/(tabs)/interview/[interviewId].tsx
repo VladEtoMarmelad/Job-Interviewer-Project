@@ -83,6 +83,8 @@ const InterviewChatScreen = () => {
 
     return (): void => {
       dispatch(changeInitialState({fieldName: "showContinueButton", fieldValue: false}))
+      dispatch(changeInitialState({fieldName: "lastQuestionId", fieldValue: null}))
+      dispatch(changeInitialState({fieldName: "prevQuestions", fieldValue: []}))
     }
   }, [interviewId]) //onMount
 
@@ -131,16 +133,14 @@ const InterviewChatScreen = () => {
 
   if (!interview || !prevQuestions) return <Text>Загрузка...</Text>;
   if (prevQuestions.length===0 && messages.length===0) return (
-    <View style={{
-        flex: 1,
+    <View style={[globalStyles.background, themeBackgroundStyle, {
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f2f2f2',
         flexDirection: 'row'
-		}}>
+		}]}>
       <TouchableOpacity
         onPress={startInterviewHanler}
-        style={[globalStyles.button, globalStyles.lightThemeButton, {alignSelf: 'center'}]}
+        style={[globalStyles.button, themeButtonStyle, {alignSelf: 'center'}]}
       ><Text style={{color: 'white'}}>Начать собеседование</Text></TouchableOpacity>
     </View>
   )

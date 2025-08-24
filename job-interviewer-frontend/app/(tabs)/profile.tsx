@@ -4,15 +4,18 @@ import { useState, useEffect } from "react";
 import { InputAndLabel } from "@/components/InputAndLabel";
 import { useForm } from "react-hook-form";
 import { Redirect, useRouter } from "expo-router";
-import { signOut, changeJWT } from "@/features/sessionSlice";
+import { signOut, changeJWT, changeSessionState } from "@/features/sessionSlice";
 import { BlurView } from "expo-blur";
 import { getThemeStyle } from "@/utils/getThemeStyle";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import settingsStyles from "@/styles/SettingsScreenStyles";
 import globalStyles from "@/styles/GlobalStyles";
 import axios from "axios";
 
 const ProfileScreen = () => {
   const [showDeleteScreen, setShowDeleteScreen] = useState(false);
+  const [JWTColorScheme, setJWTColorScheme] = useState<"light"|"dark"|"system"|null>(null)
   const router = useRouter();
 
   const user = useAppSelector(state => state.sessions.user)
@@ -20,7 +23,6 @@ const ProfileScreen = () => {
   const sessionStatus = useAppSelector(state => state.sessions.status)
   const dispatch = useAppDispatch();
   
-
   interface FormData {
 		name: string;
 	}
@@ -50,6 +52,16 @@ const ProfileScreen = () => {
     dispatch(signOut())
     axios.delete(`http://${process.env.EXPO_PUBLIC_IP}:3000/user/delete`, {params: {id: user.sub}})
     router.replace("/")
+  }
+
+  const changeColorScheme = (colorScheme: "light"|"dark"|"system"): void => {
+    dispatch(changeJWT({
+      sub: user.sub,
+      name: user.name,
+      colorScheme: colorScheme
+    }))
+    dispatch(changeSessionState({fieldName: "colorScheme", fieldValue: colorScheme}))
+    setJWTColorScheme(colorScheme)
   }
 
   const themeBackgroundStyle = getThemeStyle(colorScheme, globalStyles, "Background")
@@ -103,27 +115,26 @@ const ProfileScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={[settingsStyles.zone, themeZoneStyle]}>
+        <View style={[settingsStyles.zone, themeZoneStyle, {flexDirection: 'row'}]}>
+          <Text style={[themeTextStyle, {alignSelf: 'center', fontWeight: 'bold', fontSize: 18, marginRight: '2.5%'}]}>Выбрать цветовую тему:</Text>
           <TouchableOpacity 
-              onPress={() => dispatch(changeJWT({
-                sub: user.sub,
-                name: user.name,
-                colorScheme: "light"
-              }))}
-              style={{borderWidth: 1, borderColor: 'black', borderRadius: 10, padding: 5}}
-            >
-              <Text style={themeTextStyle}>Сменить цветовую тему на светлую</Text>
-            </TouchableOpacity>
+            onPress={() => changeColorScheme("light")}
+            style={{borderRadius: 10, padding: 5, backgroundColor: JWTColorScheme==="light" ? '#808588' : '#ffffff00'}}
+          >
+            <Ionicons name="sunny" size={24} color={colorScheme === "light" ? 'black' : 'white'} />
+          </TouchableOpacity>
           <TouchableOpacity 
-              onPress={() => dispatch(changeJWT({
-                sub: user.sub,
-                name: user.name,
-                colorScheme: "dark"
-              }))}
-              style={{borderWidth: 1, borderColor: 'black', borderRadius: 10, padding: 5}}
-            >
-              <Text style={themeTextStyle}>Сменить цветовую тему на тёмную</Text>
-            </TouchableOpacity>
+            onPress={() => changeColorScheme("dark")}
+            style={{borderRadius: 10, padding: 5, backgroundColor: JWTColorScheme==="dark" ? '#808588' : '#ffffff00'}}
+          >
+            <Ionicons name="moon" size={24} color={colorScheme === "light" ? 'black' : 'white'} />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={() => changeColorScheme("system")}
+            style={{borderRadius: 10, padding: 5, backgroundColor: JWTColorScheme==="system" ? '#808588' : '#ffffff00'}}
+          >
+            <FontAwesome6 name="computer" size={24} color={colorScheme === "light" ? 'black' : 'white'} />
+          </TouchableOpacity>
         </View>
 
         <View style={[settingsStyles.zone, settingsStyles.dangerZone]}>
