@@ -1,4 +1,6 @@
-import { Controller, Get, Post, Query, Body, Res, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Query, Body, Res, Delete, Put, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
 import { InterviewsService } from './interviews.service';
 import { google } from '@ai-sdk/google';
 import { streamText } from 'ai';
@@ -25,9 +27,27 @@ export class InterviewsController {
 
   @Post("addByURL")
   async addByURL(@Body() interviewData: any): Promise<any> {
-    const requiredKnowledge = await this.interviewsService.addByURL(interviewData.vacancyURL);
+    const requiredKnowledge = await this.interviewsService.getRequiredKnowledgeFromURL(interviewData.vacancyURL);
     return this.interviewsService.add({
       jobTitle: "URL Interview",
+      requiredKnowledge: requiredKnowledge,
+      questionsAmount: 30,
+      aiModel: "gemini-2.5-flash",
+
+      user: interviewData.user
+    })
+  }
+
+  @Post("addByImage")
+  @UseInterceptors(FileInterceptor("image"))
+  async addByImage(@UploadedFile() file: Express.Multer.File, @Body() interviewData: any ): Promise<any> {
+    console.log("file:", file)
+    const requiredKnowledge = await this.interviewsService.getRequiredKnowledgeFromImage({
+      image: file.buffer,
+      scanItem: interviewData.scanItem
+    });
+    return this.interviewsService.add({
+      jobTitle: "Image Interview",
       requiredKnowledge: requiredKnowledge,
       questionsAmount: 30,
       aiModel: "gemini-2.5-flash",

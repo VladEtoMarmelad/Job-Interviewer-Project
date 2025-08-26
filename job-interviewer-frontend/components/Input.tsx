@@ -15,7 +15,7 @@ interface Props {
   placeholder: string
   control: any
   rules: any
-  type?: "text" | "number" | "textarea" | "select"
+  type?: "text" | "number" | "textarea" | "select" 
 	styles?: any
 
 	pickerItemsList?: pickerItem[]; //only for "select" type

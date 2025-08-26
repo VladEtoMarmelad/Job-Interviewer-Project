@@ -4,11 +4,14 @@ import { useAppSelector } from "@/store";
 import { getThemeStyle } from "@/utils/getThemeStyle";
 import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { useState } from "react";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import globalStyles from "@/styles/GlobalStyles";
+import settingsStyles from "@/styles/SettingsScreenStyles";
 import axios from "axios";
 
 export const InterviewAddByURL = () => {
+	const [showInfo, setShowInfo] = useState<boolean>(false)
 	const router = useRouter()
 	const user = useAppSelector(state => state.sessions.user)
 	const sessionStatus = useAppSelector(state => state.sessions.status)
@@ -16,6 +19,7 @@ export const InterviewAddByURL = () => {
 
 	const themeTextStyle = getThemeStyle(colorScheme, globalStyles, "Text")
 	const themeButtonStyle = getThemeStyle(colorScheme, globalStyles, "Button")
+	const themeZoneStyle = getThemeStyle(colorScheme, settingsStyles, "Zone")
 
   interface FormData {
     vacancyURL: string;
@@ -42,25 +46,32 @@ export const InterviewAddByURL = () => {
 	}
 
   return (
-    <View style={{alignItems: 'center'}}>
-			<Text style={[themeTextStyle, {fontWeight: 'bold', fontSize: 18}]}>
-				Начать интервью используя URL вакансии 
-				<FontAwesome6 name="flask" size={18} style={{marginLeft: 10}}/>
-			</Text>
+    <View style={{flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center'}}>
+			<TouchableOpacity
+				onPress={() => setShowInfo(!showInfo)}
+				style={[globalStyles.button, themeButtonStyle, {position: 'absolute', top: 0, right: 0, marginRight: 15}]}
+			><FontAwesome name="info-circle" size={18} color="white"/></TouchableOpacity>
+
 			<Input 
 				name="vacancyURL"
 				placeholder="Ссылка на вакансию..."
 				control={control}
 				rules={{required: true}}
 				type="number"
-				styles={{width: '100%'}}
+				styles={{width: '75%'}}
 			/>
 			<TouchableOpacity
 				onPress={handleSubmit(addInterviewByURL)}
 				style={[globalStyles.button, themeButtonStyle]}
-			><Text style={{color: 'white'}}>Начать собеседование используя URL</Text></TouchableOpacity>
+			><Text style={{color: 'white'}}>Начать собеседование</Text></TouchableOpacity>
 
-			<Text style={[themeTextStyle, {marginTop: 100}]}>(P.S Этот способ добавления интервью пока-что является эксперементальным и может не работь на некоторых URL)</Text>
+			{showInfo &&
+				<View style={[settingsStyles.zone, themeZoneStyle, {position: 'absolute', bottom: '5%'}]}>
+					<Text style={themeTextStyle}>
+						P.S Добавления интервью с помощьюю ссылки на вакансию пока-что является эксперементальным и может не работь на некоторых URL
+					</Text>
+				</View>
+			}
 		</View>
   )
 }
