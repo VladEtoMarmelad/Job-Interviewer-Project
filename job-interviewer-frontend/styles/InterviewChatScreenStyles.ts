@@ -48,7 +48,8 @@ const styles = StyleSheet.create({
   chatSettingSection: {
     height: '100%', 
     width: '15%', 
-    borderLeftWidth: 1
+    borderLeftWidth: 1,
+    padding: 15
   },
   lightThemeChatSettingSection: {
     backgroundColor: 'white', 

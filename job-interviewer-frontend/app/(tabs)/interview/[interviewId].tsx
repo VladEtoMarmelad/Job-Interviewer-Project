@@ -1,13 +1,15 @@
-import { View, Text, FlatList, TextInput, TouchableOpacity, Platform } from "react-native"
-import { useChat } from '@ai-sdk/react'
-import { useEffect, useState, useRef, useMemo } from "react";
+import { View, Text, FlatList, TouchableOpacity } from "react-native"
+import { useEffect, useRef, useMemo } from "react";
 import { useLocalSearchParams } from 'expo-router';
 import { useAppDispatch, useAppSelector } from "@/store";
-import { addQuestion, patchLastQuestion, getPrevQuestions, changeInitialState } from "@/features/questionSlice";
-import { fetch as expoFetch } from 'expo/fetch';
+import { addQuestion, getPrevQuestions, changeInitialState, patchLastQuestion } from "@/features/questionSlice";
+import { changeInitialState as changeInterviewState } from "@/features/interviewSlice";
 import { concatQuestions } from "@/utils/concatQuestions";
 import { getThemeStyle } from "@/utils/getThemeStyle";
-import Slider from '@react-native-community/slider';
+import { InterviewChat } from "@/components/InterviewChat";
+import { InterviewChatSettings } from "@/components/InterviewChatSettings";
+import { useChat } from "@ai-sdk/react";
+import { fetch as expoFetch } from 'expo/fetch';
 import globalStyles from "@/styles/GlobalStyles";
 import styles from '@/styles/InterviewChatScreenStyles';
 import axios from "axios";
@@ -15,10 +17,9 @@ import axios from "axios";
 const InterviewChatScreen = () => {
   const searchParams = useLocalSearchParams();
   const interviewId = Array.isArray(searchParams.interviewId) ? searchParams.interviewId[0] : searchParams.interviewId; //searchParams.interviewId: string|string[]
-  const [interview, setInterview] = useState<any>(null)
-  const [chatHeight, setChatHeight] = useState<number>(100)
   let startInterview = useRef<boolean>(false)  
 
+  const interview = useAppSelector(state => state.interviews.interview)
   const prevQuestions: any = useAppSelector(state => state.questions.prevQuestions)
   const showContinueButton: any = useAppSelector(state => state.questions.showContinueButton)
   const colorScheme = useAppSelector(state => state.sessions.colorScheme)
@@ -42,6 +43,7 @@ const InterviewChatScreen = () => {
         columnValue: lastAIMessage.content,
         interviewId: interviewId
       }))
+      console.log("allMessages", messages)
     }
   });
 
@@ -75,7 +77,7 @@ const InterviewChatScreen = () => {
       })
       
       if (res.status===200) {
-        setInterview(res.data)
+        dispatch(changeInterviewState({fieldName: "interview", fieldValue: res.data}))
       }
     }
 
@@ -85,6 +87,8 @@ const InterviewChatScreen = () => {
       dispatch(changeInitialState({fieldName: "showContinueButton", fieldValue: false}))
       dispatch(changeInitialState({fieldName: "lastQuestionId", fieldValue: null}))
       dispatch(changeInitialState({fieldName: "prevQuestions", fieldValue: []}))
+      dispatch(changeInterviewState({fieldName: "disableChat", fieldValue: false}))
+      dispatch(changeInterviewState({fieldName: "showChat", fieldValue: true}))
     }
   }, [interviewId]) //onMount
 
@@ -103,32 +107,34 @@ const InterviewChatScreen = () => {
     }
   }, [input, startInterview, showContinueButton])
 
+  const handleSubmitWrapper = (): void => {
+    const mockEvent = {preventDefault: () => {}};
+    handleSubmit(mockEvent);
+  };
+
   const startInterviewHanler = (): void => {
     startInterview.current=true
     dispatch(changeInitialState({fieldName: "nextColumnUpdate", fieldValue: "aiQuestion"}))
     setInput("Давай начнём собеседование")
   }
 
-  const continueInterviewHanler = (): void => {
-    dispatch(changeInitialState({fieldName: "nextColumnUpdate", fieldValue: "aiQuestion"}))
-    setInput("Давай продолжим собеседование")
-  }
-
-  const handleSubmitWrapper = (): void => {
-    const mockEvent = {
-      preventDefault: () => {},
-    };
-    handleSubmit(mockEvent);
-  };
-
   const questionsList = useMemo(() => concatQuestions(prevQuestions, messages), [prevQuestions, messages])
 
+  useEffect(() => {
+    if (questionsList.length>0 && interview) {
+      const filteredQuestionsList = questionsList.filter((question: any) => question.content!=="Давай начнём собеседование" && question.content!=="Давай продолжим собеседование")
+      if (interview.questionsAmount<=filteredQuestionsList.length/3) {
+        console.log("Конец интервью")
+        dispatch(changeInterviewState({fieldName: "disableChat", fieldValue: true}))
+        dispatch(changeInterviewState({fieldName: "showChat", fieldValue: false}))
+      }
+    }
+  }, [interview, questionsList])
+
   const themeBackgroundStyle = getThemeStyle(colorScheme, globalStyles, "Background")
+  const themeButtonStyle = getThemeStyle(colorScheme, globalStyles, "Button")
   const themeUserMessageStyle = getThemeStyle(colorScheme, styles, "UserMessage")
   const themeAssistantMessageStyle = getThemeStyle(colorScheme, styles, "AssistantMessage")
-  const themeButtonStyle = getThemeStyle(colorScheme, globalStyles, "Button")
-  const themeInputStyle = getThemeStyle(colorScheme, globalStyles, "Input")
-  const themeChatSettingSectionStyle = getThemeStyle(colorScheme, styles, "ChatSettingSection")
   const themeTextStyle = getThemeStyle(colorScheme, globalStyles, "Text")
 
   if (!interview || !prevQuestions) return <Text>Загрузка...</Text>;
@@ -146,102 +152,36 @@ const InterviewChatScreen = () => {
   )
 
   return (
-    <View style={[globalStyles.background, themeBackgroundStyle, {justifyContent: "center",alignItems: "center",flexDirection: 'row'}]}>
-    <View style={styles.chatSection}>
-      <View style={styles.chat}>
-        {showContinueButton &&
-          <TouchableOpacity
-            onPress={continueInterviewHanler}
-            style={[
-              globalStyles.button, 
-              globalStyles.lightThemeButton, 
-              {
-                position: 'absolute', 
-                top: 0, 
-                right: 0, 
-                bottom: 0, 
-                left: 0, 
-                margin: 'auto', 
-                width: 125, 
-                height: 50
-              }
-            ]}
-          ><Text style={{color: 'white', textAlign: 'center'}}>Продолжить</Text></TouchableOpacity>
-        }
-
-        <TextInput
-          placeholder="Скажите что-то..."
-          value={input}
-          onChange={e =>
-            handleInputChange({
-              ...e,
-              target: {
-                ...e.target,
-                value: e.nativeEvent.text,
-              },
-            } as unknown as React.ChangeEvent<HTMLInputElement>)
-          }
-          autoFocus={true}
-          multiline
-          style={[globalStyles.input, themeInputStyle, {width: '100%', height: chatHeight}]}
+    <View style={[globalStyles.background, themeBackgroundStyle, {justifyContent: 'center', alignItems: 'center', flexDirection: 'row'}]}>
+      <View style={styles.chatSection}>
+        <InterviewChat 
+          handleSubmitWrapper={handleSubmitWrapper}
+          handleInputChange={handleInputChange}
+          setInput={setInput}
+          input={input}
         />
 
-        <TouchableOpacity
-          onPress={() => {
-            if (input!=="") {
-              handleSubmitWrapper()
-              dispatch(patchLastQuestion({
-                columnValue: input
-              }))
-            }
-          }}
-          style={[
-            globalStyles.button, 
-            themeButtonStyle, 
-            {
-              marginLeft: 25, 
-              height: 50, 
-              alignSelf: Platform.OS === "web" ? 'flex-end' : 'center'
-            }
-          ]}
-        ><Text style={{color: 'white'}}>Отправить ответ</Text></TouchableOpacity>
+        <FlatList 
+          data={questionsList} 
+          style={{flex: 1}}
+          showsVerticalScrollIndicator={false}
+          renderItem={({item: message, index}) => 
+            <View 
+              key={index}
+              style={[
+                styles.message, 
+                message.role==="user" ? styles.userMessage : styles.assistantMessage,
+                message.role==="user" ? themeUserMessageStyle : themeAssistantMessageStyle
+              ]}
+            >
+              <Text style={themeTextStyle}>{message.content}</Text>
+            </View>
+          }
+        />
       </View>
 
-      <FlatList 
-        data={questionsList} 
-        style={{flex: 1}}
-        showsVerticalScrollIndicator={false}
-        renderItem={({item: message, index}) => 
-          <View 
-            key={index}
-            style={[
-              styles.message, 
-              message.role==="user" ? styles.userMessage : styles.assistantMessage,
-              message.role==="user" ? themeUserMessageStyle : themeAssistantMessageStyle
-            ]}
-          >
-            <Text style={themeTextStyle}>{message.content}</Text>
-          </View>
-        }
-      />
+      <InterviewChatSettings />
     </View>
-
-    <View style={[styles.chatSettingSection, themeChatSettingSectionStyle]}>
-      <Text style={[themeTextStyle, {alignSelf: 'center', fontSize: 14, fontWeight: 'bold'}]}>Размер текстового окна:</Text>
-      <Text style={themeTextStyle}>Interview jobTitle: {interview.jobTitle}</Text>
-      <Slider 
-        style={{width: '90%', height: 40, alignSelf: 'center'}}
-        value={chatHeight}
-        onValueChange={e => setChatHeight(e)}
-        step={10}
-        minimumValue={100}
-        maximumValue={750}
-        minimumTrackTintColor={colorScheme === "light" ? 'black' : 'white'}
-        maximumTrackTintColor={colorScheme === "light" ? 'gray' : '#27292b'}
-        thumbTintColor={colorScheme === "light" ? 'blue' : 'goldenrod'}
-      />
-    </View>
-  </View>
   )
 }
 

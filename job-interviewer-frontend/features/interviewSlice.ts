@@ -1,12 +1,25 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import axios from 'axios'
 
-export interface InterviewState {
+interface InterviewState {
   interview: any;
+
+  //ChatSettings
+  showChat: boolean;
+  disableChat: boolean;
+  chatHeight: number;
+}
+
+interface ChangeStatePayload {
+  fieldName: keyof InterviewState; 
+  fieldValue: any;
 }
 
 const initialState: InterviewState = {
-  interview: null
+  interview: null,
+  showChat: true,
+  disableChat: false,
+  chatHeight: 100
 }
 
 export const getInterviewById = createAsyncThunk("interview/findOne", async (interviewId: number) => {
@@ -34,7 +47,10 @@ export const interviewSlice = createSlice({
   name: "interview",
   initialState,
   reducers: {
-
+    changeInitialState: (state: any, action: PayloadAction<ChangeStatePayload>): void => {
+      const { fieldName, fieldValue } = action.payload
+      state[fieldName] = fieldValue 
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -45,5 +61,5 @@ export const interviewSlice = createSlice({
   }
 })
 
-export const {  } = interviewSlice.actions
+export const { changeInitialState } = interviewSlice.actions
 export default interviewSlice.reducer
